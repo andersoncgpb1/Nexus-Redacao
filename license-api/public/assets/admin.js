@@ -55,11 +55,15 @@ backToTopBtn?.addEventListener('click', function() {
 
 // ===== FUNÇÃO COPIAR =====
 function copyToClipboard(text, element) {
-  if (!text) return;
+  if (!text) {
+    showToast('Nada para copiar', 'warning');
+    return;
+  }
   
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => {
       showCopyFeedback(element);
+      showToast('Chave copiada!', 'success');
     }).catch(() => {
       fallbackCopy(text, element);
     });
@@ -80,6 +84,7 @@ function fallbackCopy(text, element) {
   try {
     document.execCommand('copy');
     showCopyFeedback(element);
+    showToast('Chave copiada!', 'success');
   } catch (err) {
     showToast('Não foi possível copiar', 'error');
   }
@@ -90,15 +95,11 @@ function showCopyFeedback(element) {
   if (!element) return;
   const originalHtml = element.innerHTML;
   element.innerHTML = '<i class="fa-regular fa-check"></i> Copiado!';
-  element.style.background = '#dcfce7';
-  element.style.color = '#166534';
-  element.style.borderColor = '#86efac';
+  element.classList.add('copied');
   
   setTimeout(() => {
     element.innerHTML = originalHtml;
-    element.style.background = '';
-    element.style.color = '';
-    element.style.borderColor = '';
+    element.classList.remove('copied');
   }, 2000);
 }
 
@@ -115,6 +116,7 @@ function showToast(message, type = "info") {
   
   toast.textContent = message;
   toast.style.background = colors[type] || colors.info;
+  toast.className = 'toast ' + type;
   toast.hidden = false;
   window.clearTimeout(showToast.timer);
   showToast.timer = window.setTimeout(() => {
@@ -265,58 +267,64 @@ function renderLicenses(licenses) {
     return;
   }
 
-  if (licenseList) licenseList.innerHTML = licenses.map((license) => `
-    <article class="license-card">
-      <div class="license-card-header">
-        <div class="license-title">
-          <strong>${escapeHtml(license.customerName)}</strong>
-          <span>${escapeHtml(license.customerEmail || "Sem e-mail")}</span>
-          <span class="license-meta">
-            Plano: ${escapeHtml(license.plan)} - Validade: ${formatDate(license.expiresAt)} -
-            Ativacoes: ${activeActivations(license).length}/${license.maxActivations}
-          </span>
-          <div class="license-key-wrapper">
-            <code class="license-key-full">${escapeHtml(license.licenseKey)}</code>
-            <button class="copy-key-btn" data-license="${escapeHtml(license.licenseKey)}" title="Copiar chave">
-              <i class="fa-regular fa-copy"></i> Copiar
-            </button>
-          </div>
-        </div>
-        <div class="license-actions">
-          <span class="status ${license.status}">${statusLabel(license.status)}</span>
-          ${license.status === "active"
-            ? `<button class="mini-button" data-action="suspend" data-id="${license.id}">Suspender</button>`
-            : `<button class="mini-button" data-action="activate" data-id="${license.id}">Ativar</button>`}
-          <button class="mini-button" data-action="renew" data-id="${license.id}">Renovar +1 ano</button>
-          <button class="mini-button danger" data-action="delete" data-id="${license.id}">Excluir</button>
-        </div>
-      </div>
-      <div class="activation-list">
-        ${license.activations.length ? license.activations.map((activation) => `
-          <div class="activation-row">
-            <span>
-              ${escapeHtml(activation.machineLabel || "Computador sem nome")}
-              - Versao ${escapeHtml(activation.appVersion || "-")}
-              - ultimo acesso ${formatDate(activation.lastSeenAt)}
-              ${activation.revokedAt ? " - revogada" : ""}
+  if (licenseList) {
+    licenseList.innerHTML = licenses.map((license) => {
+      // PEGAR A CHAVE CORRETA - prioriza licenseKey, depois licenseKeyLabel
+      const licenseKey = license.licenseKey || license.licenseKeyLabel || 'Chave não disponível';
+      
+      return `
+      <article class="license-card">
+        <div class="license-card-header">
+          <div class="license-title">
+            <strong>${escapeHtml(license.customerName)}</strong>
+            <span>${escapeHtml(license.customerEmail || "Sem e-mail")}</span>
+            <span class="license-meta">
+              Plano: ${escapeHtml(license.plan)} - Validade: ${formatDate(license.expiresAt)} -
+              Ativacoes: ${activeActivations(license).length}/${license.maxActivations}
             </span>
-            ${activation.revokedAt
-              ? ""
-              : `<button class="mini-button danger" data-action="revoke" data-id="${activation.id}">Revogar maquina</button>`}
+            <div class="license-key-wrapper">
+              <code class="license-key-full">${escapeHtml(licenseKey)}</code>
+              <button class="copy-key-btn" data-license="${escapeHtml(licenseKey)}" title="Copiar chave">
+                <i class="fa-regular fa-copy"></i> Copiar
+              </button>
+            </div>
           </div>
-        `).join("") : `<span>Nenhuma maquina ativada.</span>`}
-      </div>
-    </article>
-  `).join("");
+          <div class="license-actions">
+            <span class="status ${license.status}">${statusLabel(license.status)}</span>
+            ${license.status === "active"
+              ? `<button class="mini-button" data-action="suspend" data-id="${license.id}">Suspender</button>`
+              : `<button class="mini-button" data-action="activate" data-id="${license.id}">Ativar</button>`}
+            <button class="mini-button" data-action="renew" data-id="${license.id}">Renovar +1 ano</button>
+            <button class="mini-button danger" data-action="delete" data-id="${license.id}">Excluir</button>
+          </div>
+        </div>
+        <div class="activation-list">
+          ${license.activations && license.activations.length ? license.activations.map((activation) => `
+            <div class="activation-row">
+              <span>
+                ${escapeHtml(activation.machineLabel || "Computador sem nome")}
+                - Versao ${escapeHtml(activation.appVersion || "-")}
+                - ultimo acesso ${formatDate(activation.lastSeenAt)}
+                ${activation.revokedAt ? " - revogada" : ""}
+              </span>
+              ${activation.revokedAt
+                ? ""
+                : `<button class="mini-button danger" data-action="revoke" data-id="${activation.id}">Revogar maquina</button>`}
+            </div>
+          `).join("") : `<span>Nenhuma maquina ativada.</span>`}
+        </div>
+      </article>
+    `}).join("");
 
-  // Adicionar eventos de cópia
-  document.querySelectorAll('.copy-key-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const licenseKey = this.dataset.license;
-      copyToClipboard(licenseKey, this);
+    // Adicionar eventos de cópia
+    document.querySelectorAll('.copy-key-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const licenseKey = this.dataset.license;
+        copyToClipboard(licenseKey, this);
+      });
     });
-  });
+  }
 }
 
 function escapeHtml(value) {
@@ -338,7 +346,7 @@ async function loadLicenses() {
     const data = await api("/api/admin/licenses");
     renderLicenses(data.licenses || []);
   } catch (error) {
-    showToast(error.message);
+    showToast(error.message, "error");
     if (/negado|sessao|token|expir/i.test(error.message)) {
       localStorage.removeItem(TOKEN_KEY);
       token = "";
@@ -348,9 +356,13 @@ async function loadLicenses() {
 }
 
 async function loadCustomers() {
-  const data = await api("/api/admin/customers");
-  customers = data.customers || [];
-  renderCustomers();
+  try {
+    const data = await api("/api/admin/customers");
+    customers = data.customers || [];
+    renderCustomers();
+  } catch (error) {
+    showToast(error.message, "error");
+  }
 }
 
 async function refreshAll() {
@@ -358,7 +370,7 @@ async function refreshAll() {
     await loadCustomers();
     await loadLicenses();
   } catch (error) {
-    showToast(error.message);
+    showToast(error.message, "error");
     if (/negado|sessao|token|expir/i.test(error.message)) {
       localStorage.removeItem(TOKEN_KEY);
       token = "";
@@ -368,11 +380,16 @@ async function refreshAll() {
 }
 
 async function runAction(action, payload = {}) {
-  await api("/api/admin/license-action", {
-    method: "POST",
-    body: JSON.stringify({ action, ...payload })
-  });
-  await loadLicenses();
+  try {
+    await api("/api/admin/license-action", {
+      method: "POST",
+      body: JSON.stringify({ action, ...payload })
+    });
+    await loadLicenses();
+    showToast('Ação realizada com sucesso!', 'success');
+  } catch (error) {
+    showToast(error.message, 'error');
+  }
 }
 
 // ===== LOGIN =====
@@ -390,8 +407,9 @@ loginForm?.addEventListener("submit", async (event) => {
     token = data.token;
     localStorage.setItem(TOKEN_KEY, token);
     setLoggedIn(true);
+    showToast('Login realizado com sucesso!', 'success');
   } catch (error) {
-    showToast(error.message);
+    showToast(error.message, "error");
   }
 });
 
@@ -411,12 +429,17 @@ licenseForm?.addEventListener("submit", async (event) => {
       createdLicense.hidden = false;
       const keyDisplay = document.getElementById("licenseKeyDisplay");
       if (keyDisplay) {
-        keyDisplay.textContent = data.licenseKey;
+        const licenseKey = data.licenseKey || data.licenseKeyLabel || 'Chave gerada';
+        keyDisplay.textContent = licenseKey;
+        
         // Adicionar botão de copiar na licença gerada
+        const existingBtn = keyDisplay.parentNode.querySelector('.copy-key-btn');
+        if (existingBtn) existingBtn.remove();
+        
         const copyBtn = document.createElement('button');
         copyBtn.className = 'copy-key-btn';
         copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar';
-        copyBtn.dataset.license = data.licenseKey;
+        copyBtn.dataset.license = licenseKey;
         copyBtn.addEventListener('click', function(e) {
           e.stopPropagation();
           copyToClipboard(this.dataset.license, this);
@@ -427,7 +450,7 @@ licenseForm?.addEventListener("submit", async (event) => {
     licenseForm.reset();
     licenseForm.elements.plan.value = "standard";
     licenseForm.elements.maxActivations.value = "1";
-    showToast("Licenca criada.", "success");
+    showToast("Licença criada com sucesso!", "success");
     await loadLicenses();
   } catch (error) {
     showToast(error.message, "error");
@@ -443,14 +466,27 @@ licenseList?.addEventListener("click", async (event) => {
   const id = button.dataset.id;
 
   try {
-    if (action === "suspend") await runAction("set-status", { licenseId: id, status: "suspended" });
-    if (action === "activate") await runAction("set-status", { licenseId: id, status: "active" });
-    if (action === "renew") await runAction("renew-one-year", { licenseId: id });
-    if (action === "revoke") await runAction("revoke-activation", { activationId: id });
-    if (action === "delete" && await showSiteConfirm("Excluir licença", "Deseja excluir esta licença? Esta ação não pode ser desfeita.", "Excluir", "error")) {
-      await runAction("delete-license", { licenseId: id });
+    if (action === "suspend") {
+      if (await showSiteConfirm("Suspender licença", "Deseja suspender esta licença?", "Suspender", "warning")) {
+        await runAction("set-status", { licenseId: id, status: "suspended" });
+      }
+    } else if (action === "activate") {
+      if (await showSiteConfirm("Ativar licença", "Deseja ativar esta licença?", "Ativar", "info")) {
+        await runAction("set-status", { licenseId: id, status: "active" });
+      }
+    } else if (action === "renew") {
+      if (await showSiteConfirm("Renovar licença", "Deseja renovar esta licença por +1 ano?", "Renovar", "info")) {
+        await runAction("renew-one-year", { licenseId: id });
+      }
+    } else if (action === "revoke") {
+      if (await showSiteConfirm("Revogar máquina", "Deseja revogar o acesso desta máquina?", "Revogar", "warning")) {
+        await runAction("revoke-activation", { activationId: id });
+      }
+    } else if (action === "delete") {
+      if (await showSiteConfirm("Excluir licença", "Deseja excluir esta licença? Esta ação não pode ser desfeita.", "Excluir", "error")) {
+        await runAction("delete-license", { licenseId: id });
+      }
     }
-    showToast("Acao concluida.", "success");
   } catch (error) {
     showToast(error.message, "error");
   }
@@ -472,7 +508,7 @@ customerForm?.addEventListener("submit", async (event) => {
       body: JSON.stringify(payload)
     });
     customerForm.reset();
-    showToast("Cliente salvo.", "success");
+    showToast("Cliente salvo com sucesso!", "success");
     await loadCustomers();
   } catch (error) {
     showToast(error.message, "error");
@@ -512,6 +548,7 @@ document.querySelector("#logoutButton")?.addEventListener("click", () => {
   localStorage.removeItem(TOKEN_KEY);
   token = "";
   setLoggedIn(false);
+  showToast('Logout realizado', 'info');
 });
 
 // ===== NAVIGATION =====
@@ -528,4 +565,5 @@ document.querySelectorAll(".admin-nav[data-view]").forEach((button) => {
   });
 });
 
+// ===== INICIALIZAR =====
 setLoggedIn(Boolean(token));

@@ -709,7 +709,7 @@ a {
 }
 
 /* ============================================ */
-/* ===== ADMIN (mantido igual) ===== */
+/* ===== ADMIN ===== */
 /* ============================================ */
 .admin-body {
   background: #eef3f9;
@@ -1111,21 +1111,6 @@ a {
   font-size: 13px;
 }
 
-.license-key-full {
-  display: inline-block;
-  margin-top: 6px;
-  padding: 6px 14px;
-  border-radius: 6px;
-  background: var(--primary-light);
-  color: var(--primary-dark);
-  font-family: "SFMono-Regular", Consolas, monospace;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  overflow-wrap: anywhere;
-  border: 1px solid rgba(14, 117, 237, 0.2);
-}
-
 .license-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1342,6 +1327,90 @@ a {
   gap: 10px;
   padding: 14px 20px;
   border-top: 1px solid var(--line);
+}
+
+/* ============================================ */
+/* ===== LICENSE KEY WITH COPY BUTTON ===== */
+/* ============================================ */
+
+.license-key-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.license-key-full {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  overflow-wrap: anywhere;
+  border: 1px solid rgba(14, 117, 237, 0.2);
+  word-break: break-all;
+  flex: 1;
+  min-width: 200px;
+}
+
+.copy-key-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.copy-key-btn:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.copy-key-btn:active {
+  transform: scale(0.95);
+}
+
+.copy-key-btn i {
+  font-size: 14px;
+}
+
+.copy-key-btn.copied {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #86efac;
+}
+
+/* ===== TOAST COM CORES ===== */
+.toast.success {
+  background: #16a34a !important;
+}
+
+.toast.error {
+  background: #dc2626 !important;
+}
+
+.toast.warning {
+  background: #f59e0b !important;
+}
+
+.toast.info {
+  background: #0e75ed !important;
 }
 
 /* ============================================ */
@@ -1612,82 +1681,8 @@ a {
   .feature-card {
     padding: 24px 18px;
   }
-}
 
-/* Telas muito grandes (Desktop) */
-@media (min-width: 1400px) {
-  .hero {
-    padding: 120px clamp(40px, 8vw, 120px) 80px;
-  }
-
-  .feature-grid {
-    gap: 28px;
-  }
-
-  .download-content {
-    padding: 56px 64px;
-  }
-}
-
-/* ============================================ */
-/* ===== ADMIN RESPONSIVE OVERRIDES ===== */
-/* ============================================ */
-
-/* Sidebar responsiva no admin */
-@media (max-width: 868px) {
-  .admin-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-sidebar {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 12px 16px;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .admin-sidebar .brand {
-    margin-bottom: 0;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-
-  .admin-sidebar .brand img {
-    width: 28px;
-    height: 28px;
-  }
-
-  .admin-nav-menu {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 4px;
-    flex: 1;
-  }
-
-  .admin-nav {
-    width: auto;
-    padding: 0 12px;
-    min-height: 36px;
-    font-size: 13px;
-  }
-
-  .admin-nav i {
-    width: 16px;
-    font-size: 14px;
-  }
-
-  .admin-nav span {
-    display: inline;
-  }
-
-  .nav-divider {
-    display: none;
-  }
-}
-
-/* Mobile admin */
-@media (max-width: 480px) {
+  /* Admin mobile extra */
   .admin-sidebar {
     padding: 10px 12px;
     gap: 4px;
@@ -1722,54 +1717,16 @@ a {
     font-size: 20px;
   }
 
-  .admin-metrics {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .metric-card {
-    padding: 12px 14px;
-    gap: 12px;
-  }
-
-  .metric-card span {
-    font-size: 20px;
-  }
-
-  .metric-icon {
-    font-size: 20px;
-  }
-
-  .admin-card {
-    padding: 16px;
-  }
-
-  .card-header h2 {
-    font-size: 17px;
-  }
-
-  .admin-form label {
-    font-size: 12px;
-  }
-
-  .admin-form input,
-  .admin-form select,
-  .admin-form textarea {
-    min-height: 36px;
-    font-size: 14px;
-  }
-
-  .license-card {
-    padding: 14px;
-  }
-
-  .license-title strong {
-    font-size: 14px;
-  }
-
   .license-key-full {
     font-size: 11px;
     padding: 4px 10px;
+    min-width: 120px;
+  }
+
+  .copy-key-btn {
+    font-size: 11px;
+    padding: 0 10px;
+    min-height: 28px;
   }
 
   .mini-button {
@@ -1782,6 +1739,14 @@ a {
     font-size: 10px;
     min-height: 22px;
     padding: 0 8px;
+  }
+
+  .license-card {
+    padding: 14px;
+  }
+
+  .license-title strong {
+    font-size: 14px;
   }
 }
 
@@ -1812,87 +1777,17 @@ a {
   }
 }
 
-/* ============================================ */
-/* ===== LICENSE KEY WITH COPY BUTTON ===== */
-/* ============================================ */
+/* Telas muito grandes (Desktop) */
+@media (min-width: 1400px) {
+  .hero {
+    padding: 120px clamp(40px, 8vw, 120px) 80px;
+  }
 
-.license-key-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 6px;
-  flex-wrap: wrap;
-}
+  .feature-grid {
+    gap: 28px;
+  }
 
-.license-key-full {
-  display: inline-block;
-  padding: 6px 14px;
-  border-radius: 6px;
-  background: var(--primary-light);
-  color: var(--primary-dark);
-  font-family: "SFMono-Regular", Consolas, monospace;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  overflow-wrap: anywhere;
-  border: 1px solid rgba(14, 117, 237, 0.2);
-  word-break: break-all;
-  flex: 1;
-  min-width: 200px;
-}
-
-.copy-key-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 32px;
-  padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-  white-space: nowrap;
-}
-
-.copy-key-btn:hover {
-  background: var(--primary-light);
-  color: var(--primary);
-  border-color: var(--primary);
-}
-
-.copy-key-btn:active {
-  transform: scale(0.95);
-}
-
-.copy-key-btn i {
-  font-size: 14px;
-}
-
-/* Estado de copiado (gerenciado pelo JS) */
-.copy-key-btn.copied {
-  background: #dcfce7;
-  color: #166534;
-  border-color: #86efac;
-}
-
-/* ===== TOAST COM CORES ===== */
-.toast.success {
-  background: #16a34a !important;
-}
-
-.toast.error {
-  background: #dc2626 !important;
-}
-
-.toast.warning {
-  background: #f59e0b !important;
-}
-
-.toast.info {
-  background: #0e75ed !important;
+  .download-content {
+    padding: 56px 64px;
+  }
 }
