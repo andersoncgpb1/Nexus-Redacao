@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nexus Redação - Sistema de Gestão Editorial</title>
+    <meta name="theme-color" content="#07192b" />
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-logo" src="./logo.png" alt="Nexus" />
+        <img class="brand-logo-compact" src="./favicon.png" alt="Nexus" />
+      </div>
+      <nav id="nav" class="nav"></nav>
+    </aside>
+
+    <main class="shell">
+      <header class="topbar">
+        <button id="toggleSidebar" class="icon-button" title="Recolher menu"><i class="fa-solid fa-bars"></i></button>
+        <div id="clock" class="clock">--:--:--</div>
+        <div class="top-actions">
+          <button id="backupBtn" class="icon-button" title="Backup agora"><i class="fa-solid fa-floppy-disk"></i></button>
+          <button id="notificationsBtn" class="icon-button" title="Notificações"><i class="fa-regular fa-bell"></i></button>
+          <button id="shortcutsBtn" class="icon-button" title="Atalhos: Ctrl+N, Ctrl+S"><i class="fa-regular fa-keyboard"></i></button>
+          <button id="homeBtn" class="icon-button active" title="Início"><i class="fa-solid fa-house"></i></button>
+          <button id="settingsBtn" class="icon-button" title="Configurações"><i class="fa-solid fa-gear"></i></button>
+          <button id="logoutButton" class="icon-button" title="Sair"><i class="fa-solid fa-right-from-bracket"></i></button>
+          <span class="user">Redação</span>
+        </div>
+      </header>
+
+      <section id="tabs" class="tabs"></section>
+      <section id="view" class="view"></section>
+    </main>
+
+    <div id="modal" class="modal" hidden>
+      <div class="modal-backdrop"></div>
+      <div class="modal-card">
+        <div class="modal-header">
+          <strong id="modalTitle">Confirmação</strong>
+          <button id="modalClose" class="icon-button" title="Fechar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="modalBody" class="modal-body"></div>
+        <div class="modal-actions">
+          <button id="modalCancel" class="button">Não</button>
+          <button id="modalConfirm" class="button primary">Sim</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

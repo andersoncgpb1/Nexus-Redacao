@@ -1,0 +1,9 @@
+{
+  "name": "Nexus Redação",
+  "short_name": "Nexus",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#07192b",
+  "description": "Sistema local para redação jornalística com pautas, laudas, espelhos, produção e arquivos."
+}

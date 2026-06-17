@@ -1,0 +1,78 @@
+{
+  "name": "nexus-redacao-robust",
+  "version": "1.0.0",
+  "description": "Sistema robusto para redacao jornalistica com painel editorial, autenticacao, SQLite e backups.",
+  "main": "electron-main.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "desktop": "electron .",
+    "dist": "electron-builder --win --x64",
+    "release": "electron-builder --win --x64 --publish always",
+    "seed": "node src/database/seed.js",
+    "backup": "node src/services/backupService.js"
+  },
+  "keywords": [
+    "redacao",
+    "jornalismo",
+    "espelho",
+    "lauda",
+    "jwt"
+  ],
+  "author": "Nexus Redação",
+  "license": "MIT",
+  "build": {
+    "appId": "br.com.nexus.redacao",
+    "productName": "Nexus Redação",
+    "asar": true,
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "andersoncgpb1",
+        "repo": "Nexus-Redacao"
+      }
+    ],
+    "files": [
+      "electron-main.js",
+      "src/**/*",
+      "app.js",
+      "index.html",
+      "styles.css",
+      "manifest.json",
+      "logo.png",
+      "favicon.png",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "favicon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Nexus Redação"
+    }
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "electron-updater": "^6.8.9",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.10.0",
+    "helmet": "^7.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "winston": "^3.10.0"
+  },
+  "devDependencies": {
+    "electron": "^30.5.1",
+    "electron-builder": "^24.13.3"
+  }
+}
