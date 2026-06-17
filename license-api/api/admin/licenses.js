@@ -21,7 +21,7 @@ async function listLicenses(req, res) {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("licenses")
-    .select("*, license_activations(*)")
+    .select("*, customers(*), license_activations(*)")
     .order("created_at", { ascending: false });
 
   if (error) throw error;
@@ -30,8 +30,16 @@ async function listLicenses(req, res) {
     ok: true,
     licenses: (data || []).map((license) => ({
       id: license.id,
+      customerId: license.customer_id,
       customerName: license.customer_name,
       customerEmail: license.customer_email,
+      customer: license.customers ? {
+        id: license.customers.id,
+        name: license.customers.name,
+        email: license.customers.email,
+        phone: license.customers.phone,
+        company: license.customers.company
+      } : null,
       plan: license.plan,
       status: license.status,
       expiresAt: license.expires_at,
@@ -56,18 +64,30 @@ async function createLicense(req, res) {
   const maxActivations = Math.max(1, Number(body.maxActivations || 1));
   const defaultExpiration = new Date();
   defaultExpiration.setFullYear(defaultExpiration.getFullYear() + 1);
+  const supabase = getSupabase();
 
-  if (!body.customerName) {
+  let customer = null;
+  if (body.customerId) {
+    const { data: selectedCustomer, error: customerError } = await supabase
+      .from("customers")
+      .select("*")
+      .eq("id", body.customerId)
+      .single();
+    if (customerError) throw customerError;
+    customer = selectedCustomer;
+  }
+
+  if (!body.customerName && !customer) {
     return sendJson(res, 400, { ok: false, error: "Informe o nome do cliente." });
   }
 
-  const supabase = getSupabase();
   const { data, error } = await supabase
     .from("licenses")
     .insert({
+      customer_id: customer?.id || null,
       license_key_hash: hashLicenseKey(licenseKey),
-      customer_name: String(body.customerName || "").trim(),
-      customer_email: String(body.customerEmail || "").trim() || null,
+      customer_name: String(body.customerName || customer?.name || "").trim(),
+      customer_email: String(body.customerEmail || customer?.email || "").trim() || null,
       plan: String(body.plan || "standard").trim(),
       status: "active",
       expires_at: body.expiresAt || defaultExpiration.toISOString(),

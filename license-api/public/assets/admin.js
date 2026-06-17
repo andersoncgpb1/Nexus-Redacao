@@ -8,13 +8,20 @@ const licenseList = document.querySelector("#licenseList");
 const summaryText = document.querySelector("#summaryText");
 const createPanel = document.querySelector("#createPanel");
 const licensesPanel = document.querySelector("#licensesPanel");
+const customersPanel = document.querySelector("#customersPanel");
 const createdLicense = document.querySelector("#createdLicense");
+const customerForm = document.querySelector("#customerForm");
+const customerList = document.querySelector("#customerList");
+const customersSummary = document.querySelector("#customersSummary");
+const licenseCustomerSelect = document.querySelector("#licenseCustomerSelect");
 const toast = document.querySelector("#toast");
+const metricCustomers = document.querySelector("#metricCustomers");
 const metricTotal = document.querySelector("#metricTotal");
 const metricActive = document.querySelector("#metricActive");
 const metricMachines = document.querySelector("#metricMachines");
 
 let token = localStorage.getItem(TOKEN_KEY) || "";
+let customers = [];
 
 function showToast(message) {
   toast.textContent = message;
@@ -50,7 +57,7 @@ async function api(path, options = {}) {
 function setLoggedIn(value) {
   loginView.hidden = value;
   adminView.hidden = !value;
-  if (value) loadLicenses();
+  if (value) refreshAll();
 }
 
 function formatDate(value) {
@@ -72,9 +79,43 @@ function activeActivations(license) {
 }
 
 function renderMetrics(licenses) {
+  metricCustomers.textContent = customers.length;
   metricTotal.textContent = licenses.length;
   metricActive.textContent = licenses.filter((license) => license.status === "active").length;
   metricMachines.textContent = licenses.reduce((total, license) => total + activeActivations(license).length, 0);
+}
+
+function renderCustomers() {
+  customersSummary.textContent = `${customers.length} cliente(s)`;
+  metricCustomers.textContent = customers.length;
+  licenseCustomerSelect.innerHTML = `<option value="">Selecionar cliente</option>` + customers.map((customer) => (
+    `<option value="${customer.id}">${escapeHtml(customer.name)}${customer.company ? ` - ${escapeHtml(customer.company)}` : ""}</option>`
+  )).join("");
+
+  if (!customers.length) {
+    customerList.innerHTML = `<div class="license-card">Nenhum cliente cadastrado.</div>`;
+    return;
+  }
+
+  customerList.innerHTML = customers.map((customer) => `
+    <article class="license-card customer-card">
+      <div class="license-card-header">
+        <div class="license-title">
+          <strong>${escapeHtml(customer.name)}</strong>
+          <span>${escapeHtml(customer.company || "Sem empresa")} - ${escapeHtml(customer.email || "Sem e-mail")}</span>
+          <span class="license-meta">
+            ${escapeHtml(customer.phone || "Sem telefone")} - ${escapeHtml([customer.city, customer.state].filter(Boolean).join("/")) || "Sem cidade"}
+            - Licencas: ${(customer.licenses || []).length}
+          </span>
+        </div>
+        <div class="license-actions">
+          <span class="status ${customer.status === "active" ? "active" : "expired"}">${customer.status === "active" ? "Ativo" : "Inativo"}</span>
+          <button class="mini-button" data-customer-action="edit" data-id="${customer.id}">Editar</button>
+          <button class="mini-button" data-customer-action="license" data-id="${customer.id}">Criar licença</button>
+        </div>
+      </div>
+    </article>
+  `).join("");
 }
 
 function renderLicenses(licenses) {
@@ -139,6 +180,26 @@ async function loadLicenses() {
   try {
     const data = await api("/api/admin/licenses");
     renderLicenses(data.licenses || []);
+  } catch (error) {
+    showToast(error.message);
+    if (/negado|sessao|token|expir/i.test(error.message)) {
+      localStorage.removeItem(TOKEN_KEY);
+      token = "";
+      setLoggedIn(false);
+    }
+  }
+}
+
+async function loadCustomers() {
+  const data = await api("/api/admin/customers");
+  customers = data.customers || [];
+  renderCustomers();
+}
+
+async function refreshAll() {
+  try {
+    await loadCustomers();
+    await loadLicenses();
   } catch (error) {
     showToast(error.message);
     if (/negado|sessao|token|expir/i.test(error.message)) {
@@ -220,7 +281,53 @@ licenseList.addEventListener("click", async (event) => {
   }
 });
 
-document.querySelector("#refreshButton").addEventListener("click", loadLicenses);
+document.querySelector("#refreshButton").addEventListener("click", refreshAll);
+
+customerForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const payload = Object.fromEntries(new FormData(customerForm).entries());
+  const method = payload.id ? "PUT" : "POST";
+  if (!payload.id) delete payload.id;
+
+  try {
+    await api("/api/admin/customers", {
+      method,
+      body: JSON.stringify(payload)
+    });
+    customerForm.reset();
+    showToast("Cliente salvo.");
+    await loadCustomers();
+  } catch (error) {
+    showToast(error.message);
+  }
+});
+
+document.querySelector("#clearCustomerForm").addEventListener("click", () => {
+  customerForm.reset();
+  customerForm.elements.id.value = "";
+});
+
+customerList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-customer-action]");
+  if (!button) return;
+  const customer = customers.find((item) => item.id === button.dataset.id);
+  if (!customer) return;
+
+  if (button.dataset.customerAction === "edit") {
+    for (const [key, value] of Object.entries(customer)) {
+      if (customerForm.elements[key]) customerForm.elements[key].value = value || "";
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  if (button.dataset.customerAction === "license") {
+    document.querySelector('[data-view="create"]').click();
+    licenseCustomerSelect.value = customer.id;
+    licenseForm.elements.customerName.value = "";
+    licenseForm.elements.customerEmail.value = "";
+  }
+});
 
 document.querySelector("#logoutButton").addEventListener("click", () => {
   localStorage.removeItem(TOKEN_KEY);
@@ -235,6 +342,7 @@ document.querySelectorAll(".admin-nav[data-view]").forEach((button) => {
     const view = button.dataset.view;
     createPanel.hidden = view !== "create";
     licensesPanel.hidden = view !== "licenses";
+    customersPanel.hidden = view !== "customers";
   });
 });
 

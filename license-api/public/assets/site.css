@@ -501,6 +501,16 @@ textarea {
   gap: 12px;
 }
 
+.customer-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.customer-card {
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+}
+
 .license-card {
   border: 1px solid var(--line);
   border-radius: 12px;

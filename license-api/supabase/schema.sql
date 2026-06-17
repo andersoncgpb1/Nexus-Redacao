@@ -21,6 +21,24 @@ create table if not exists public.licenses (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.customers (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  document text,
+  email text,
+  phone text,
+  company text,
+  city text,
+  state text,
+  notes text,
+  status text not null default 'active',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.licenses
+  add column if not exists customer_id uuid references public.customers(id) on delete set null;
+
 create table if not exists public.license_activations (
   id uuid primary key default gen_random_uuid(),
   license_id uuid not null references public.licenses(id) on delete cascade,
@@ -34,6 +52,8 @@ create table if not exists public.license_activations (
 );
 
 create index if not exists idx_licenses_status on public.licenses(status);
+create index if not exists idx_licenses_customer on public.licenses(customer_id);
+create index if not exists idx_customers_name on public.customers(name);
 create index if not exists idx_activations_license on public.license_activations(license_id);
 create index if not exists idx_activations_machine on public.license_activations(machine_id_hash);
 
@@ -52,6 +72,12 @@ create trigger trg_licenses_updated_at
 before update on public.licenses
 for each row execute function public.touch_updated_at();
 
+drop trigger if exists trg_customers_updated_at on public.customers;
+create trigger trg_customers_updated_at
+before update on public.customers
+for each row execute function public.touch_updated_at();
+
+alter table public.customers enable row level security;
 alter table public.licenses enable row level security;
 alter table public.license_activations enable row level security;
 
