@@ -8,6 +8,9 @@ const USER_KEY = "nexus_user";
 const RECOVERY_KEY = "nexus-redacao-recovery-drafts-v1";
 const APP_VERSION = "real-data-v1";
 
+let licenseStatus = null;
+let licenseStatusLoading = false;
+
 const ROLE_PERMISSIONS = {
   admin: { create: ["*"], edit: ["*"], delete: ["*"], backup: true },
   editor: { create: ["*"], edit: ["*"], delete: ["*"], backup: true },
@@ -593,6 +596,14 @@ function setActive(view, options = {}) {
 }
 
 function render() {
+  if (!licenseStatus || licenseStatusLoading) {
+    renderLicenseGate();
+    return;
+  }
+  if (licenseStatus.configured && !licenseStatus.activated) {
+    renderLicenseGate();
+    return;
+  }
   if (!isLogged()) {
     renderLogin();
     return;
@@ -631,6 +642,86 @@ function render() {
   if (renderer) renderer();
   else renderCrudModule(modules[state.active] || modules.agency);
   scheduleRecoveryPrompt();
+}
+
+async function loadLicenseStatus() {
+  if (licenseStatusLoading) return;
+  licenseStatusLoading = true;
+  try {
+    const response = await fetch("/api/license/status");
+    licenseStatus = await response.json();
+  } catch {
+    licenseStatus = { configured: true, activated: false, error: "Nao foi possivel consultar a licenca." };
+  } finally {
+    licenseStatusLoading = false;
+  }
+}
+
+function renderLicenseGate() {
+  document.body.classList.add("login-mode");
+  $("#nav").innerHTML = "";
+  $("#tabs").innerHTML = "";
+
+  if (!licenseStatus && !licenseStatusLoading) {
+    loadLicenseStatus().then(render);
+  }
+
+  const loading = !licenseStatus || licenseStatusLoading;
+  const error = licenseStatus?.error ? `<div class="license-alert">${licenseStatus.error}</div>` : "";
+
+  $("#view").innerHTML = `
+    <section class="license-screen">
+      <div class="license-hero">
+        <img class="login-logo" src="./logo.png" alt="Nexus" />
+        <span class="license-badge">Nexus Redação 1.0</span>
+        <h1>Ative sua licença</h1>
+        <p>Digite a chave fornecida para liberar este computador. A ativação fica vinculada à máquina e pode ser gerenciada pelo painel online.</p>
+      </div>
+      <form id="licenseForm" class="license-panel">
+        <h2>${loading ? "Verificando licença..." : "Licença do aplicativo"}</h2>
+        ${error}
+        <input name="licenseKey" placeholder="NEXUS-XXXXX-XXXXX-XXXXX-XXXXX" ${loading ? "disabled" : "required"}>
+        <button class="button primary" type="submit" ${loading ? "disabled" : ""}>Ativar agora</button>
+        <button class="button ghost" type="button" id="retryLicense">Verificar novamente</button>
+        <div class="login-help">
+          <strong>Sem chave?</strong>
+          <span>Solicite uma licença ao administrador do Nexus Redação.</span>
+        </div>
+      </form>
+    </section>
+  `;
+
+  $("#retryLicense")?.addEventListener("click", async () => {
+    licenseStatus = null;
+    await loadLicenseStatus();
+    render();
+  });
+
+  $("#licenseForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const values = Object.fromEntries(new FormData(event.currentTarget).entries());
+    await activateLicense(values.licenseKey);
+  });
+}
+
+async function activateLicense(licenseKey) {
+  try {
+    const response = await fetch("/api/license/activate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ licenseKey })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      showToast(data.error || "Licenca invalida", "error");
+      return;
+    }
+    licenseStatus = { configured: true, activated: true, license: data.license };
+    showToast("Licenca ativada com sucesso", "success");
+    render();
+  } catch {
+    showToast("Erro ao ativar licenca", "error");
+  }
 }
 
 function renderLogin() {

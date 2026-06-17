@@ -15,9 +15,10 @@
       <div class="admin-login-card">
         <img src="/logo.png" alt="Nexus Redação" />
         <h1>Painel Admin</h1>
-        <p>Informe o token administrativo configurado na Vercel.</p>
+        <p>Entre com o usuário e senha configurados na Vercel.</p>
         <form id="adminLoginForm">
-          <input id="adminToken" type="password" placeholder="ADMIN_TOKEN" autocomplete="current-password" required />
+          <input id="adminUsername" name="username" type="text" placeholder="Usuário" autocomplete="username" required />
+          <input id="adminPassword" name="password" type="password" placeholder="Senha" autocomplete="current-password" required />
           <button class="button primary" type="submit">Entrar</button>
         </form>
       </div>
@@ -40,8 +41,16 @@
             <p class="eyebrow">Administração</p>
             <h1>Licenças Nexus Redação</h1>
           </div>
-          <button id="refreshButton" class="button secondary">Atualizar</button>
+          <div class="admin-top-actions">
+            <button id="refreshButton" class="button secondary">Atualizar</button>
+          </div>
         </header>
+
+        <section class="admin-metrics">
+          <article><span id="metricTotal">0</span><strong>Licenças</strong></article>
+          <article><span id="metricActive">0</span><strong>Ativas</strong></article>
+          <article><span id="metricMachines">0</span><strong>Máquinas</strong></article>
+        </section>
 
         <section id="createPanel" class="admin-card" hidden>
           <h2>Nova licença</h2>

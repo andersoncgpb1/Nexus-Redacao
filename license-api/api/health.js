@@ -11,7 +11,9 @@ module.exports = async function health(req, res) {
       licenseHashSecret: Boolean(process.env.LICENSE_HASH_SECRET),
       machineHashSecret: Boolean(process.env.MACHINE_HASH_SECRET),
       licenseTokenSecret: Boolean(process.env.LICENSE_TOKEN_SECRET),
-      adminToken: Boolean(process.env.ADMIN_TOKEN),
+      adminUsername: Boolean(process.env.ADMIN_USERNAME),
+      adminPassword: Boolean(process.env.ADMIN_PASSWORD),
+      adminSessionSecret: Boolean(process.env.ADMIN_SESSION_SECRET),
       offlineGraceDays: Boolean(process.env.OFFLINE_GRACE_DAYS)
     }
   });

@@ -13,6 +13,7 @@ function setupRuntimePaths() {
   process.env.BACKUP_DIR = path.join(userData, "backups");
   process.env.LOG_DIR = path.join(userData, "logs");
   process.env.CORS_ORIGIN = "";
+  process.env.LICENSE_API_URL ||= "https://nexus-redacao.vercel.app";
 }
 
 async function createWindow() {

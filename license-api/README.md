@@ -26,7 +26,9 @@ Configure estas variaveis no projeto da Vercel:
 - `LICENSE_HASH_SECRET`
 - `MACHINE_HASH_SECRET`
 - `LICENSE_TOKEN_SECRET`
-- `ADMIN_TOKEN`
+- `ADMIN_USERNAME`
+- `ADMIN_PASSWORD`
+- `ADMIN_SESSION_SECRET`
 - `OFFLINE_GRACE_DAYS`
 
 Depois publique:
@@ -42,7 +44,7 @@ npm run deploy
 - Site publico: `/`
 - Painel admin: `/admin.html`
 
-O painel admin pede o valor de `ADMIN_TOKEN`. Esse token nunca deve ser enviado para cliente final.
+O painel admin pede usuario e senha configurados em `ADMIN_USERNAME` e `ADMIN_PASSWORD`.
 
 No painel voce consegue:
 

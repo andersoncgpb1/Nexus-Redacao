@@ -10,6 +10,9 @@ const createPanel = document.querySelector("#createPanel");
 const licensesPanel = document.querySelector("#licensesPanel");
 const createdLicense = document.querySelector("#createdLicense");
 const toast = document.querySelector("#toast");
+const metricTotal = document.querySelector("#metricTotal");
+const metricActive = document.querySelector("#metricActive");
+const metricMachines = document.querySelector("#metricMachines");
 
 let token = localStorage.getItem(TOKEN_KEY) || "";
 
@@ -64,8 +67,19 @@ function statusLabel(status) {
   return labels[status] || status;
 }
 
+function activeActivations(license) {
+  return license.activations.filter((activation) => !activation.revokedAt);
+}
+
+function renderMetrics(licenses) {
+  metricTotal.textContent = licenses.length;
+  metricActive.textContent = licenses.filter((license) => license.status === "active").length;
+  metricMachines.textContent = licenses.reduce((total, license) => total + activeActivations(license).length, 0);
+}
+
 function renderLicenses(licenses) {
   summaryText.textContent = `${licenses.length} licenca(s)`;
+  renderMetrics(licenses);
 
   if (!licenses.length) {
     licenseList.innerHTML = `<div class="license-card">Nenhuma licenca cadastrada.</div>`;
@@ -79,7 +93,7 @@ function renderLicenses(licenses) {
           <strong>${escapeHtml(license.customerName)}</strong>
           <span>${escapeHtml(license.customerEmail || "Sem e-mail")}</span>
           <span class="license-meta">
-            Plano: ${escapeHtml(license.plan)} · Validade: ${formatDate(license.expiresAt)} ·
+            Plano: ${escapeHtml(license.plan)} - Validade: ${formatDate(license.expiresAt)} -
             Ativacoes: ${activeActivations(license).length}/${license.maxActivations}
           </span>
         </div>
@@ -96,9 +110,9 @@ function renderLicenses(licenses) {
           <div class="activation-row">
             <span>
               ${escapeHtml(activation.machineLabel || "Computador sem nome")}
-              · Versao ${escapeHtml(activation.appVersion || "-")}
-              · ultimo acesso ${formatDate(activation.lastSeenAt)}
-              ${activation.revokedAt ? " · revogada" : ""}
+              - Versao ${escapeHtml(activation.appVersion || "-")}
+              - ultimo acesso ${formatDate(activation.lastSeenAt)}
+              ${activation.revokedAt ? " - revogada" : ""}
             </span>
             ${activation.revokedAt
               ? ""
@@ -108,10 +122,6 @@ function renderLicenses(licenses) {
       </div>
     </article>
   `).join("");
-}
-
-function activeActivations(license) {
-  return license.activations.filter((activation) => !activation.revokedAt);
 }
 
 function escapeHtml(value) {
@@ -130,7 +140,7 @@ async function loadLicenses() {
     renderLicenses(data.licenses || []);
   } catch (error) {
     showToast(error.message);
-    if (/negado|token/i.test(error.message)) {
+    if (/negado|sessao|token|expir/i.test(error.message)) {
       localStorage.removeItem(TOKEN_KEY);
       token = "";
       setLoggedIn(false);
@@ -146,11 +156,23 @@ async function runAction(action, payload = {}) {
   await loadLicenses();
 }
 
-loginForm.addEventListener("submit", (event) => {
+loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  token = document.querySelector("#adminToken").value.trim();
-  localStorage.setItem(TOKEN_KEY, token);
-  setLoggedIn(true);
+  const values = Object.fromEntries(new FormData(event.currentTarget).entries());
+  try {
+    const response = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values)
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.error || "Usuario ou senha invalidos.");
+    token = data.token;
+    localStorage.setItem(TOKEN_KEY, token);
+    setLoggedIn(true);
+  } catch (error) {
+    showToast(error.message);
+  }
 });
 
 licenseForm.addEventListener("submit", async (event) => {
