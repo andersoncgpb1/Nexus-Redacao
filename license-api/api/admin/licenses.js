@@ -54,6 +54,8 @@ async function createLicense(req, res) {
   const body = await readJson(req);
   const licenseKey = String(body.licenseKey || generateLicenseKey()).trim().toUpperCase();
   const maxActivations = Math.max(1, Number(body.maxActivations || 1));
+  const defaultExpiration = new Date();
+  defaultExpiration.setFullYear(defaultExpiration.getFullYear() + 1);
 
   if (!body.customerName) {
     return sendJson(res, 400, { ok: false, error: "Informe o nome do cliente." });
@@ -68,7 +70,7 @@ async function createLicense(req, res) {
       customer_email: String(body.customerEmail || "").trim() || null,
       plan: String(body.plan || "standard").trim(),
       status: "active",
-      expires_at: body.expiresAt || null,
+      expires_at: body.expiresAt || defaultExpiration.toISOString(),
       max_activations: maxActivations,
       notes: String(body.notes || "").trim() || null
     })

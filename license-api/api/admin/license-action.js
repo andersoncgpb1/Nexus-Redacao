@@ -37,6 +37,22 @@ module.exports = async function licenseAction(req, res) {
       return sendJson(res, 200, { ok: true });
     }
 
+    if (action === "renew-one-year") {
+      const nextYear = new Date();
+      nextYear.setFullYear(nextYear.getFullYear() + 1);
+
+      const { error } = await supabase
+        .from("licenses")
+        .update({
+          status: "active",
+          expires_at: nextYear.toISOString()
+        })
+        .eq("id", body.licenseId);
+
+      if (error) throw error;
+      return sendJson(res, 200, { ok: true, expiresAt: nextYear.toISOString() });
+    }
+
     if (action === "delete-license") {
       const { error } = await supabase
         .from("licenses")

@@ -102,6 +102,7 @@ function renderLicenses(licenses) {
           ${license.status === "active"
             ? `<button class="mini-button" data-action="suspend" data-id="${license.id}">Suspender</button>`
             : `<button class="mini-button" data-action="activate" data-id="${license.id}">Ativar</button>`}
+          <button class="mini-button" data-action="renew" data-id="${license.id}">Renovar +1 ano</button>
           <button class="mini-button danger" data-action="delete" data-id="${license.id}">Excluir</button>
         </div>
       </div>
@@ -208,6 +209,7 @@ licenseList.addEventListener("click", async (event) => {
   try {
     if (action === "suspend") await runAction("set-status", { licenseId: id, status: "suspended" });
     if (action === "activate") await runAction("set-status", { licenseId: id, status: "active" });
+    if (action === "renew") await runAction("renew-one-year", { licenseId: id });
     if (action === "revoke") await runAction("revoke-activation", { activationId: id });
     if (action === "delete" && confirm("Excluir esta licenca?")) {
       await runAction("delete-license", { licenseId: id });
