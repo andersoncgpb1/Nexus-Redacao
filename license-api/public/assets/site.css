@@ -10,16 +10,16 @@
   --text-secondary: #5f6b7a;
   --line: #dbe3ee;
   --primary: #0e75ed;
-  --primary-dark: #061d3c;
+  --primary-dark: #1a4f8a;
   --primary-light: #e8f2ff;
   --accent: #14b8a6;
   --danger: #e5484d;
   --warning: #f59e0b;
   --success: #16a34a;
-  --navy: #061d3c;
-  --navy-light: #0e75ed;
-  --shadow: 0 22px 60px rgba(6, 29, 60, 0.13);
-  --shadow-sm: 0 12px 34px rgba(6, 29, 60, 0.06);
+  --navy: #0a2a4a;
+  --navy-light: #1a5a9a;
+  --shadow: 0 22px 60px rgba(10, 42, 74, 0.13);
+  --shadow-sm: 0 12px 34px rgba(10, 42, 74, 0.06);
   --radius: 16px;
   --radius-sm: 8px;
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -199,30 +199,21 @@ a {
 
 .site-header.scrolled {
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 4px 24px rgba(6, 29, 60, 0.08);
+  box-shadow: 0 4px 24px rgba(10, 42, 74, 0.08);
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  font-weight: 800;
-  font-size: 20px;
   flex-shrink: 0;
 }
 
-.brand img {
-  width: 38px;
-  height: 38px;
+.brand-logo {
+  width: auto;
+  height: 45px;
+  max-width: 180px;
   object-fit: contain;
-}
-
-.brand span {
-  color: var(--navy);
-}
-
-.brand span span {
-  color: var(--primary);
 }
 
 .site-header nav {
@@ -657,8 +648,9 @@ a {
 }
 
 .footer-brand img {
-  width: 32px;
+  width: auto;
   height: 32px;
+  max-width: 120px;
   object-fit: contain;
 }
 
@@ -730,7 +722,7 @@ a {
   padding: 40px 36px;
   border-radius: var(--radius);
   background: var(--surface);
-  box-shadow: 0 28px 90px rgba(6, 29, 60, 0.2);
+  box-shadow: 0 28px 90px rgba(10, 42, 74, 0.2);
 }
 
 .login-brand {
@@ -836,6 +828,7 @@ a {
 .admin-sidebar .brand img {
   width: 32px;
   height: 32px;
+  object-fit: contain;
 }
 
 .admin-nav-menu {
@@ -1111,6 +1104,69 @@ a {
   font-size: 13px;
 }
 
+.license-key-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.license-key-full {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  overflow-wrap: anywhere;
+  border: 1px solid rgba(14, 117, 237, 0.2);
+  word-break: break-all;
+  flex: 1;
+  min-width: 200px;
+}
+
+.copy-key-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.copy-key-btn:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.copy-key-btn:active {
+  transform: scale(0.95);
+}
+
+.copy-key-btn i {
+  font-size: 14px;
+}
+
+.copy-key-btn.copied {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #86efac;
+}
+
 .license-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1232,6 +1288,22 @@ a {
   animation: slideUp 0.3s ease;
 }
 
+.toast.success {
+  background: #16a34a !important;
+}
+
+.toast.error {
+  background: #dc2626 !important;
+}
+
+.toast.warning {
+  background: #f59e0b !important;
+}
+
+.toast.info {
+  background: #0e75ed !important;
+}
+
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -1253,7 +1325,7 @@ a {
 .site-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(6, 29, 60, 0.6);
+  background: rgba(10, 42, 74, 0.6);
   backdrop-filter: blur(6px);
 }
 
@@ -1263,7 +1335,7 @@ a {
   overflow: hidden;
   border-radius: var(--radius);
   background: var(--surface);
-  box-shadow: 0 28px 90px rgba(6, 29, 60, 0.3);
+  box-shadow: 0 28px 90px rgba(10, 42, 74, 0.3);
 }
 
 .site-modal-header {
@@ -1330,94 +1402,9 @@ a {
 }
 
 /* ============================================ */
-/* ===== LICENSE KEY WITH COPY BUTTON ===== */
-/* ============================================ */
-
-.license-key-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 6px;
-  flex-wrap: wrap;
-}
-
-.license-key-full {
-  display: inline-block;
-  padding: 6px 14px;
-  border-radius: 6px;
-  background: var(--primary-light);
-  color: var(--primary-dark);
-  font-family: "SFMono-Regular", Consolas, monospace;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  overflow-wrap: anywhere;
-  border: 1px solid rgba(14, 117, 237, 0.2);
-  word-break: break-all;
-  flex: 1;
-  min-width: 200px;
-}
-
-.copy-key-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 34px;
-  padding: 0 16px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-  white-space: nowrap;
-}
-
-.copy-key-btn:hover {
-  background: var(--primary-light);
-  color: var(--primary);
-  border-color: var(--primary);
-}
-
-.copy-key-btn:active {
-  transform: scale(0.95);
-}
-
-.copy-key-btn i {
-  font-size: 14px;
-}
-
-.copy-key-btn.copied {
-  background: #dcfce7;
-  color: #166534;
-  border-color: #86efac;
-}
-
-/* ===== TOAST COM CORES ===== */
-.toast.success {
-  background: #16a34a !important;
-}
-
-.toast.error {
-  background: #dc2626 !important;
-}
-
-.toast.warning {
-  background: #f59e0b !important;
-}
-
-.toast.info {
-  background: #0e75ed !important;
-}
-
-/* ============================================ */
 /* ===== RESPONSIVE ===== */
 /* ============================================ */
 
-/* Tablets e telas médias */
 @media (max-width: 1024px) {
   .feature-grid {
     grid-template-columns: 1fr 1fr;
@@ -1437,7 +1424,6 @@ a {
   }
 }
 
-/* Tablets pequenos e dispositivos médios */
 @media (max-width: 868px) {
   .admin-shell {
     grid-template-columns: 1fr;
@@ -1472,7 +1458,6 @@ a {
   }
 }
 
-/* Mobile */
 @media (max-width: 768px) {
   .hero {
     grid-template-columns: 1fr;
@@ -1487,6 +1472,11 @@ a {
 
   .site-header {
     padding: 12px 16px;
+  }
+
+  .brand-logo {
+    height: 35px;
+    max-width: 140px;
   }
 
   .site-header nav {
@@ -1620,7 +1610,6 @@ a {
   }
 }
 
-/* Mobile pequeno */
 @media (max-width: 480px) {
   .hero h1 {
     font-size: 32px;
@@ -1682,7 +1671,6 @@ a {
     padding: 24px 18px;
   }
 
-  /* Admin mobile extra */
   .admin-sidebar {
     padding: 10px 12px;
     gap: 4px;
@@ -1748,10 +1736,7 @@ a {
   .license-title strong {
     font-size: 14px;
   }
-}
 
-/* Login responsivo */
-@media (max-width: 480px) {
   .admin-login-card {
     padding: 24px 18px;
   }
@@ -1775,9 +1760,13 @@ a {
     font-size: 14px;
     left: 12px;
   }
+
+  .brand-logo {
+    height: 28px;
+    max-width: 100px;
+  }
 }
 
-/* Telas muito grandes (Desktop) */
 @media (min-width: 1400px) {
   .hero {
     padding: 120px clamp(40px, 8vw, 120px) 80px;
@@ -1789,5 +1778,75 @@ a {
 
   .download-content {
     padding: 56px 64px;
+  }
+
+  .brand-logo {
+    height: 55px;
+    max-width: 220px;
+  }
+}
+
+/* ============================================ */
+/* ===== ADMIN LOGO ===== */
+/* ============================================ */
+
+.login-logo {
+  width: auto;
+  height: 80px;
+  max-width: 200px;
+  object-fit: contain;
+  margin: 0 auto 16px;
+}
+
+.sidebar-logo {
+  width: auto;
+  height: 32px;
+  max-width: 140px;
+  object-fit: contain;
+}
+
+/* Ajuste do brand no sidebar */
+.admin-sidebar .brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  padding: 8px 0;
+}
+
+/* ============================================ */
+/* ===== RESPONSIVE ADMIN LOGO ===== */
+/* ============================================ */
+
+@media (max-width: 768px) {
+  .login-logo {
+    height: 60px;
+    max-width: 160px;
+  }
+
+  .sidebar-logo {
+    height: 26px;
+    max-width: 100px;
+  }
+
+  .admin-sidebar .brand {
+    margin-bottom: 16px;
+    padding: 4px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-logo {
+    height: 48px;
+    max-width: 120px;
+  }
+
+  .sidebar-logo {
+    height: 22px;
+    max-width: 80px;
+  }
+
+  .admin-sidebar .brand {
+    margin-bottom: 10px;
   }
 }
