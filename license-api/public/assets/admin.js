@@ -1,4 +1,5 @@
 const TOKEN_KEY = "nexus_admin_token";
+const LICENSE_STORAGE_KEY = "nexus_full_licenses";
 
 const loginView = document.querySelector("#loginView");
 const adminView = document.querySelector("#adminView");
@@ -28,6 +29,34 @@ const siteModalClose = document.querySelector("#siteModalClose");
 
 let token = localStorage.getItem(TOKEN_KEY) || "";
 let customers = [];
+
+// ===== ARMAZENAMENTO DE CHAVES COMPLETAS =====
+function saveFullLicense(licenseKey, fullKey) {
+  try {
+    const stored = JSON.parse(localStorage.getItem(LICENSE_STORAGE_KEY) || '{}');
+    stored[licenseKey] = fullKey;
+    localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(stored));
+  } catch (e) {
+    console.warn('Não foi possível salvar a chave completa:', e);
+  }
+}
+
+function getFullLicense(licenseKey) {
+  try {
+    const stored = JSON.parse(localStorage.getItem(LICENSE_STORAGE_KEY) || '{}');
+    return stored[licenseKey] || licenseKey;
+  } catch (e) {
+    return licenseKey;
+  }
+}
+
+function getAllFullLicenses() {
+  try {
+    return JSON.parse(localStorage.getItem(LICENSE_STORAGE_KEY) || '{}');
+  } catch (e) {
+    return {};
+  }
+}
 
 // ===== BACK TO TOP =====
 const backToTopBtn = document.getElementById('backToTop');
@@ -60,9 +89,17 @@ function copyToClipboard(text, element) {
     return;
   }
   
-  // Se o texto estiver mascarado com ****, tenta pegar do dataset original
+  // Se o texto estiver mascarado com ****, tenta recuperar a chave completa do storage
+  if (text.includes('****')) {
+    const fullKey = getFullLicense(text);
+    if (fullKey && !fullKey.includes('****')) {
+      text = fullKey;
+    }
+  }
+  
+  // Se ainda tiver ****, tenta do dataset
   if (text.includes('****') && element) {
-    const fullKey = element.dataset.fullLicense || element.dataset.license;
+    const fullKey = element.dataset.fullLicense;
     if (fullKey && !fullKey.includes('****')) {
       text = fullKey;
     }
@@ -277,20 +314,18 @@ function renderLicenses(licenses) {
 
   if (licenseList) {
     licenseList.innerHTML = licenses.map((license) => {
-      // PEGAR A CHAVE COMPLETA - PRIORIZA licenseKey, DEPOIS licenseKeyLabel
-      // REMOVE QUALQUER MASCARAMENTO
+      // PEGAR A CHAVE - PRIORIZA licenseKey, DEPOIS licenseKeyLabel
       let licenseKey = license.licenseKey || license.licenseKeyLabel || 'Chave não disponível';
       
-      // Se a chave estiver mascarada com ****, tenta buscar a chave completa
-      if (licenseKey.includes('****') && license.licenseKeyRaw) {
-        licenseKey = license.licenseKeyRaw;
-      } else if (licenseKey.includes('****') && license.fullLicenseKey) {
-        licenseKey = license.fullLicenseKey;
+      // TENTAR RECUPERAR A CHAVE COMPLETA DO STORAGE LOCAL
+      const fullKeyFromStorage = getFullLicense(licenseKey);
+      if (fullKeyFromStorage && !fullKeyFromStorage.includes('****')) {
+        licenseKey = fullKeyFromStorage;
       }
       
-      // Se ainda tiver ****, tenta buscar do campo raw
-      if (licenseKey.includes('****')) {
-        licenseKey = license.rawLicenseKey || licenseKey;
+      // Se ainda tiver ****, tenta do campo raw
+      if (licenseKey.includes('****') && license.licenseKeyRaw) {
+        licenseKey = license.licenseKeyRaw;
       }
       
       return `
@@ -450,12 +485,27 @@ licenseForm?.addEventListener("submit", async (event) => {
       method: "POST",
       body: JSON.stringify(payload)
     });
+    
+    // SALVAR A CHAVE COMPLETA NO STORAGE LOCAL
+    const fullLicenseKey = data.licenseKey || data.licenseKeyLabel || 'Chave gerada';
+    const maskedKey = fullLicenseKey.replace(/(NEXUS-)([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{5})/, '$1****-****-****-$5');
+    
+    // Salvar a chave completa associada à versão mascarada
+    if (fullLicenseKey && !fullLicenseKey.includes('****')) {
+      saveFullLicense(fullLicenseKey, fullLicenseKey);
+      // Também salvar pela versão mascarada
+      if (maskedKey !== fullLicenseKey) {
+        saveFullLicense(maskedKey, fullLicenseKey);
+      }
+    }
+    
     if (createdLicense) {
       createdLicense.hidden = false;
       const keyDisplay = document.getElementById("licenseKeyDisplay");
       if (keyDisplay) {
-        const licenseKey = data.licenseKey || data.licenseKeyLabel || 'Chave gerada';
-        keyDisplay.textContent = licenseKey;
+        // Mostrar a chave completa na criação
+        const displayKey = fullLicenseKey.includes('****') ? fullLicenseKey : fullLicenseKey;
+        keyDisplay.textContent = displayKey;
         
         // Adicionar botão de copiar na licença gerada
         const existingBtn = keyDisplay.parentNode.querySelector('.copy-key-btn');
@@ -464,8 +514,8 @@ licenseForm?.addEventListener("submit", async (event) => {
         const copyBtn = document.createElement('button');
         copyBtn.className = 'copy-key-btn';
         copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar';
-        copyBtn.dataset.license = licenseKey;
-        copyBtn.dataset.fullLicense = licenseKey;
+        copyBtn.dataset.license = displayKey;
+        copyBtn.dataset.fullLicense = fullLicenseKey;
         copyBtn.addEventListener('click', function(e) {
           e.stopPropagation();
           copyToClipboard(this.dataset.fullLicense || this.dataset.license, this);
