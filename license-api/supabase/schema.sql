@@ -42,6 +42,9 @@ alter table public.licenses
 alter table public.licenses
   add column if not exists license_key_label text;
 
+alter table public.licenses
+  add column if not exists license_key_label text;
+
 create table if not exists public.license_activations (
   id uuid primary key default gen_random_uuid(),
   license_id uuid not null references public.licenses(id) on delete cascade,

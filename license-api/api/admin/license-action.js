@@ -66,6 +66,6 @@ module.exports = async function licenseAction(req, res) {
     return sendJson(res, 400, { ok: false, error: "Acao invalida." });
   } catch (error) {
     console.error(error);
-    return sendJson(res, 500, { ok: false, error: "Erro ao executar acao." });
+    return sendJson(res, 500, { ok: false, error: error.message || "Erro ao executar acao." });
   }
 };

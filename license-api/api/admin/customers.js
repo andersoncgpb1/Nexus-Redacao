@@ -13,7 +13,7 @@ module.exports = async function customers(req, res) {
     return sendJson(res, 405, { ok: false, error: "Metodo nao permitido." });
   } catch (error) {
     console.error(error);
-    return sendJson(res, 500, { ok: false, error: "Erro ao processar cliente." });
+    return sendJson(res, 500, { ok: false, error: error.message || "Erro ao processar cliente." });
   }
 };
 
@@ -21,7 +21,7 @@ async function listCustomers(req, res) {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("customers")
-    .select("*, licenses(id,status,expires_at,max_activations)")
+    .select("*")
     .order("created_at", { ascending: false });
 
   if (error) throw error;
@@ -40,7 +40,7 @@ async function listCustomers(req, res) {
       notes: customer.notes,
       status: customer.status,
       createdAt: customer.created_at,
-      licenses: customer.licenses || []
+      licenses: []
     }))
   });
 }

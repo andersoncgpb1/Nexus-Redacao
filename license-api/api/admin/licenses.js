@@ -13,7 +13,7 @@ module.exports = async function licenses(req, res) {
     return sendJson(res, 405, { ok: false, error: "Metodo nao permitido." });
   } catch (error) {
     console.error(error);
-    return sendJson(res, 500, { ok: false, error: "Erro no painel administrativo." });
+    return sendJson(res, 500, { ok: false, error: error.message || "Erro no painel administrativo." });
   }
 };
 
@@ -21,7 +21,7 @@ async function listLicenses(req, res) {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("licenses")
-    .select("*, customers(*), license_activations(*)")
+    .select("*, license_activations(*)")
     .order("created_at", { ascending: false });
 
   if (error) throw error;
@@ -34,13 +34,7 @@ async function listLicenses(req, res) {
       licenseKeyLabel: license.license_key_label,
       customerName: license.customer_name,
       customerEmail: license.customer_email,
-      customer: license.customers ? {
-        id: license.customers.id,
-        name: license.customers.name,
-        email: license.customers.email,
-        phone: license.customers.phone,
-        company: license.customers.company
-      } : null,
+      customer: null,
       plan: license.plan,
       status: license.status,
       expiresAt: license.expires_at,
