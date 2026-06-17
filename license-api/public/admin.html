@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel Admin - Nexus Redação</title>
+    <link rel="icon" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/site.css" />
+  </head>
+  <body class="admin-body">
+    <section id="loginView" class="admin-login">
+      <div class="admin-login-card">
+        <img src="/logo.png" alt="Nexus Redação" />
+        <h1>Painel Admin</h1>
+        <p>Informe o token administrativo configurado na Vercel.</p>
+        <form id="adminLoginForm">
+          <input id="adminToken" type="password" placeholder="ADMIN_TOKEN" autocomplete="current-password" required />
+          <button class="button primary" type="submit">Entrar</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="adminView" class="admin-shell" hidden>
+      <aside class="admin-sidebar">
+        <a class="brand" href="/">
+          <img src="/logo.png" alt="Nexus" />
+          <span>Nexus</span>
+        </a>
+        <button class="admin-nav active" data-view="licenses">Licenças</button>
+        <button class="admin-nav" data-view="create">Nova licença</button>
+        <button class="admin-nav" id="logoutButton">Sair</button>
+      </aside>
+
+      <main class="admin-main">
+        <header class="admin-top">
+          <div>
+            <p class="eyebrow">Administração</p>
+            <h1>Licenças Nexus Redação</h1>
+          </div>
+          <button id="refreshButton" class="button secondary">Atualizar</button>
+        </header>
+
+        <section id="createPanel" class="admin-card" hidden>
+          <h2>Nova licença</h2>
+          <form id="licenseForm" class="admin-form">
+            <label>Cliente<input name="customerName" required placeholder="Nome da empresa ou cliente" /></label>
+            <label>E-mail<input name="customerEmail" type="email" placeholder="cliente@email.com" /></label>
+            <label>Plano<input name="plan" value="standard" /></label>
+            <label>Validade<input name="expiresAt" type="datetime-local" /></label>
+            <label>Máquinas<input name="maxActivations" type="number" min="1" value="1" /></label>
+            <label class="wide">Observações<textarea name="notes" rows="3"></textarea></label>
+            <button class="button primary" type="submit">Gerar licença</button>
+          </form>
+          <div id="createdLicense" class="created-license" hidden></div>
+        </section>
+
+        <section id="licensesPanel" class="admin-card">
+          <div class="card-heading">
+            <h2>Licenças cadastradas</h2>
+            <span id="summaryText">Carregando...</span>
+          </div>
+          <div id="licenseList" class="license-list"></div>
+        </section>
+      </main>
+    </section>
+
+    <div id="toast" class="toast" hidden></div>
+    <script src="/assets/admin.js"></script>
+  </body>
+</html>

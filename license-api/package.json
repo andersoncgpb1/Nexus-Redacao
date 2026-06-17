@@ -1,0 +1,17 @@
+{
+  "name": "nexus-redacao-license-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API de licencas do Nexus Redacao para Vercel + Supabase.",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "vercel": "^37.4.0"
+  }
+}
