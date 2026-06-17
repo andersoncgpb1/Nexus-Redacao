@@ -29,6 +29,31 @@ const siteModalClose = document.querySelector("#siteModalClose");
 let token = localStorage.getItem(TOKEN_KEY) || "";
 let customers = [];
 
+// ===== BACK TO TOP =====
+const backToTopBtn = document.getElementById('backToTop');
+let isVisible = false;
+
+window.addEventListener('scroll', function() {
+  const scrollY = window.scrollY || window.pageYOffset;
+  const threshold = 400;
+  
+  if (scrollY > threshold && !isVisible) {
+    backToTopBtn.classList.add('visible');
+    isVisible = true;
+  } else if (scrollY <= threshold && isVisible) {
+    backToTopBtn.classList.remove('visible');
+    isVisible = false;
+  }
+});
+
+backToTopBtn?.addEventListener('click', function() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+});
+
+// ===== TOAST =====
 function showToast(message) {
   if (!toast || /erro|inv[aá]lido|negado|expir|aten/i.test(message)) {
     showSiteAlert("Aviso", message, "warning");
@@ -195,7 +220,7 @@ function renderLicenses(licenses) {
             Plano: ${escapeHtml(license.plan)} - Validade: ${formatDate(license.expiresAt)} -
             Ativacoes: ${activeActivations(license).length}/${license.maxActivations}
           </span>
-          <code class="license-key-label">${escapeHtml(license.licenseKeyLabel || "Chave antiga sem exibicao")}</code>
+          <code class="license-key-full">${escapeHtml(license.licenseKey)}</code>
         </div>
         <div class="license-actions">
           <span class="status ${license.status}">${statusLabel(license.status)}</span>
@@ -281,6 +306,7 @@ async function runAction(action, payload = {}) {
   await loadLicenses();
 }
 
+// ===== LOGIN =====
 loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const values = Object.fromEntries(new FormData(event.currentTarget).entries());
@@ -300,6 +326,7 @@ loginForm?.addEventListener("submit", async (event) => {
   }
 });
 
+// ===== CREATE LICENSE =====
 licenseForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(licenseForm);
@@ -313,7 +340,8 @@ licenseForm?.addEventListener("submit", async (event) => {
     });
     if (createdLicense) {
       createdLicense.hidden = false;
-      createdLicense.innerHTML = `Chave gerada: <code>${escapeHtml(data.licenseKey)}</code>`;
+      const keyDisplay = document.getElementById("licenseKeyDisplay");
+      if (keyDisplay) keyDisplay.textContent = data.licenseKey;
     }
     licenseForm.reset();
     licenseForm.elements.plan.value = "standard";
@@ -325,6 +353,7 @@ licenseForm?.addEventListener("submit", async (event) => {
   }
 });
 
+// ===== LICENSE ACTIONS =====
 licenseList?.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-action]");
   if (!button) return;
@@ -346,8 +375,10 @@ licenseList?.addEventListener("click", async (event) => {
   }
 });
 
+// ===== REFRESH =====
 document.querySelector("#refreshButton")?.addEventListener("click", refreshAll);
 
+// ===== CUSTOMER FORM =====
 customerForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const payload = Object.fromEntries(new FormData(customerForm).entries());
@@ -372,6 +403,7 @@ document.querySelector("#clearCustomerForm")?.addEventListener("click", () => {
   customerForm.elements.id.value = "";
 });
 
+// ===== CUSTOMER ACTIONS =====
 customerList?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-customer-action]");
   if (!button) return;
@@ -394,12 +426,14 @@ customerList?.addEventListener("click", (event) => {
   }
 });
 
+// ===== LOGOUT =====
 document.querySelector("#logoutButton")?.addEventListener("click", () => {
   localStorage.removeItem(TOKEN_KEY);
   token = "";
   setLoggedIn(false);
 });
 
+// ===== NAVIGATION =====
 document.querySelectorAll(".admin-nav[data-view]").forEach((button) => {
   button.addEventListener("click", () => {
     document.querySelectorAll(".admin-nav[data-view]").forEach((item) => item.classList.remove("active"));
@@ -408,6 +442,9 @@ document.querySelectorAll(".admin-nav[data-view]").forEach((button) => {
     if (createPanel) createPanel.hidden = view !== "create";
     if (licensesPanel) licensesPanel.hidden = view !== "licenses";
     if (customersPanel) customersPanel.hidden = view !== "customers";
+    
+    // Scroll to top when switching views
+    window.scrollTo({ top: 0, behavior: "smooth" });
   });
 });
 

@@ -12,6 +12,12 @@
     <link rel="stylesheet" href="/assets/site.css" />
   </head>
   <body class="admin-body">
+    <!-- ===== BACK TO TOP BUTTON ===== -->
+    <button id="backToTop" class="back-to-top" aria-label="Voltar ao topo">
+      <i class="fa-solid fa-arrow-up"></i>
+      <span class="back-tooltip">Voltar ao topo</span>
+    </button>
+
     <!-- ===== LOGIN ===== -->
     <section id="loginView" class="admin-login">
       <div class="admin-login-card">
@@ -49,23 +55,23 @@
         </a>
         <nav class="admin-nav-menu">
           <button class="admin-nav active" data-view="licenses">
-            <i class="fa-solid fa-table-list"></i> Licenças
+            <i class="fa-solid fa-table-list"></i> <span>Licenças</span>
           </button>
           <button class="admin-nav" data-view="create">
-            <i class="fa-solid fa-plus"></i> Nova licença
+            <i class="fa-solid fa-plus"></i> <span>Nova licença</span>
           </button>
           <button class="admin-nav" data-view="customers">
-            <i class="fa-regular fa-address-book"></i> Clientes
+            <i class="fa-regular fa-address-book"></i> <span>Clientes</span>
           </button>
           <div class="nav-divider"></div>
           <button class="admin-nav" id="logoutButton">
-            <i class="fa-solid fa-right-from-bracket"></i> Sair
+            <i class="fa-solid fa-right-from-bracket"></i> <span>Sair</span>
           </button>
         </nav>
       </aside>
 
       <!-- Main Content -->
-      <main class="admin-main">
+      <main class="admin-main" id="adminMain">
         <!-- Top Bar -->
         <header class="admin-top">
           <div>
