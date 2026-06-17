@@ -9,17 +9,17 @@
   --text: #0f172a;
   --text-secondary: #5f6b7a;
   --line: #dbe3ee;
-  --primary: #1677ff;
-  --primary-dark: #0f4ec9;
+  --primary: #0e75ed;
+  --primary-dark: #061d3c;
   --primary-light: #e8f2ff;
   --accent: #14b8a6;
   --danger: #e5484d;
   --warning: #f59e0b;
   --success: #16a34a;
-  --navy: #081b31;
-  --navy-light: #0d3157;
-  --shadow: 0 22px 60px rgba(15, 23, 42, 0.13);
-  --shadow-sm: 0 12px 34px rgba(15, 23, 42, 0.06);
+  --navy: #061d3c;
+  --navy-light: #0e75ed;
+  --shadow: 0 22px 60px rgba(6, 29, 60, 0.13);
+  --shadow-sm: 0 12px 34px rgba(6, 29, 60, 0.06);
   --radius: 16px;
   --radius-sm: 8px;
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -44,7 +44,9 @@ a {
   text-decoration: none;
 }
 
+/* ============================================ */
 /* ===== BUTTONS ===== */
+/* ============================================ */
 .button {
   display: inline-flex;
   align-items: center;
@@ -185,7 +187,7 @@ a {
   min-height: 100vh;
   padding: 100px clamp(20px, 6vw, 84px) 60px;
   background:
-    radial-gradient(circle at 10% 20%, rgba(22, 119, 255, 0.08), transparent 40%),
+    radial-gradient(circle at 10% 20%, rgba(14, 117, 237, 0.08), transparent 40%),
     radial-gradient(circle at 90% 80%, rgba(20, 184, 166, 0.06), transparent 40%);
 }
 
@@ -263,7 +265,9 @@ a {
   font-size: 13px;
 }
 
+/* ============================================ */
 /* ===== HERO PANEL ===== */
+/* ============================================ */
 .hero-panel {
   overflow: hidden;
   border: 1px solid var(--line);
@@ -613,7 +617,7 @@ a {
   min-height: 100vh;
   padding: 24px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(22, 119, 255, 0.15), transparent 40%),
+    radial-gradient(circle at 20% 20%, rgba(14, 117, 237, 0.15), transparent 40%),
     linear-gradient(135deg, var(--navy), var(--navy-light) 50%, #eef3f9 50%);
 }
 
@@ -622,7 +626,7 @@ a {
   padding: 40px 36px;
   border-radius: var(--radius);
   background: var(--surface);
-  box-shadow: 0 28px 90px rgba(2, 6, 23, 0.2);
+  box-shadow: 0 28px 90px rgba(6, 29, 60, 0.2);
 }
 
 .login-brand {
@@ -681,7 +685,7 @@ a {
 .input-group input:focus {
   border-color: var(--primary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(14, 117, 237, 0.15);
 }
 
 .admin-login-card .button {
@@ -771,7 +775,7 @@ a {
 }
 
 .admin-nav.active {
-  background: rgba(22, 119, 255, 0.3);
+  background: rgba(14, 117, 237, 0.3);
   color: #ffffff;
 }
 
@@ -935,7 +939,7 @@ a {
 .admin-form textarea:focus {
   border-color: var(--primary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.12);
+  box-shadow: 0 0 0 3px rgba(14, 117, 237, 0.12);
 }
 
 .admin-form textarea {
@@ -1020,17 +1024,19 @@ a {
   font-size: 13px;
 }
 
-.license-key-label {
+.license-key-full {
   display: inline-block;
   margin-top: 6px;
-  padding: 4px 12px;
+  padding: 6px 14px;
   border-radius: 6px;
   background: var(--primary-light);
   color: var(--primary-dark);
   font-family: "SFMono-Regular", Consolas, monospace;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
+  letter-spacing: 0.5px;
   overflow-wrap: anywhere;
+  border: 1px solid rgba(14, 117, 237, 0.2);
 }
 
 .license-actions {
@@ -1190,7 +1196,7 @@ a {
 .site-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(8, 27, 49, 0.6);
+  background: rgba(6, 29, 60, 0.6);
   backdrop-filter: blur(6px);
 }
 
@@ -1200,7 +1206,7 @@ a {
   overflow: hidden;
   border-radius: var(--radius);
   background: var(--surface);
-  box-shadow: 0 28px 90px rgba(2, 6, 23, 0.3);
+  box-shadow: 0 28px 90px rgba(6, 29, 60, 0.3);
 }
 
 .site-modal-header {
@@ -1338,7 +1344,6 @@ a {
     justify-content: center;
   }
 
-  /* Admin Mobile */
   .admin-shell {
     grid-template-columns: 1fr;
   }
