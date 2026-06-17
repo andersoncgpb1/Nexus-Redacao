@@ -10,6 +10,9 @@ const APP_VERSION = "real-data-v1";
 
 let licenseStatus = null;
 let licenseStatusLoading = false;
+let setupStatus = null;
+let setupStatusLoading = false;
+let licenseMonitorStarted = false;
 
 const ROLE_PERMISSIONS = {
   admin: { create: ["*"], edit: ["*"], delete: ["*"], backup: true },
@@ -604,10 +607,19 @@ function render() {
     renderLicenseGate();
     return;
   }
+  if (!setupStatus || setupStatusLoading) {
+    renderSetupGate();
+    return;
+  }
+  if (setupStatus.needsSetup) {
+    renderSetupGate();
+    return;
+  }
   if (!isLogged()) {
     renderLogin();
     return;
   }
+  startLicenseMonitor();
   document.body.classList.remove("login-mode");
   document.body.classList.toggle("density-compact", state.ui?.density === "compact");
   renderUserBadge();
@@ -644,17 +656,49 @@ function render() {
   scheduleRecoveryPrompt();
 }
 
+async function loadSetupStatus() {
+  if (setupStatusLoading) return;
+  setupStatusLoading = true;
+  try {
+    const response = await fetch("/api/setup-status");
+    setupStatus = await response.json();
+  } catch {
+    setupStatus = { needsSetup: false };
+  } finally {
+    setupStatusLoading = false;
+  }
+}
+
 async function loadLicenseStatus() {
   if (licenseStatusLoading) return;
   licenseStatusLoading = true;
   try {
     const response = await fetch("/api/license/status");
     licenseStatus = await response.json();
+    if (licenseStatus.configured && !licenseStatus.activated && isLogged()) {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(SESSION_KEY);
+      await showAlert("Licença bloqueada", licenseStatus.error || "A licença deste computador não está ativa.", "error");
+    }
   } catch {
     licenseStatus = { configured: true, activated: false, error: "Nao foi possivel consultar a licenca." };
   } finally {
     licenseStatusLoading = false;
   }
+}
+
+function startLicenseMonitor() {
+  if (licenseMonitorStarted) return;
+  licenseMonitorStarted = true;
+  setInterval(async () => {
+    await loadLicenseStatus();
+    if (licenseStatus?.configured && !licenseStatus.activated) render();
+  }, 60000);
+  window.addEventListener("focus", async () => {
+    await loadLicenseStatus();
+    if (licenseStatus?.configured && !licenseStatus.activated) render();
+  });
 }
 
 function renderLicenseGate() {
@@ -702,6 +746,64 @@ function renderLicenseGate() {
     const values = Object.fromEntries(new FormData(event.currentTarget).entries());
     await activateLicense(values.licenseKey);
   });
+}
+
+function renderSetupGate() {
+  document.body.classList.add("login-mode");
+  $("#nav").innerHTML = "";
+  $("#tabs").innerHTML = "";
+
+  if (!setupStatus && !setupStatusLoading) {
+    loadSetupStatus().then(render);
+  }
+
+  $("#view").innerHTML = `
+    <section class="license-screen setup-screen">
+      <div class="license-hero">
+        <img class="login-logo" src="./logo.png" alt="Nexus" />
+        <span class="license-badge">Primeiro acesso</span>
+        <h1>Crie o administrador da redação</h1>
+        <p>Este usuário terá acesso total ao sistema e poderá cadastrar editores, repórteres, pauteiros e demais funcionários.</p>
+      </div>
+      <form id="setupForm" class="license-panel">
+        <h2>Administrador inicial</h2>
+        <input name="name" placeholder="Nome completo" required>
+        <input name="email" type="email" placeholder="E-mail" required>
+        <input name="password" type="password" placeholder="Senha" minlength="6" required>
+        <button class="button primary" type="submit">Criar administrador</button>
+      </form>
+    </section>
+  `;
+
+  $("#setupForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const values = Object.fromEntries(new FormData(event.currentTarget).entries());
+    await createFirstAdmin(values);
+  });
+}
+
+async function createFirstAdmin(values) {
+  try {
+    const response = await fetch("/api/setup-admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values)
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      await showAlert("Não foi possível criar o administrador", data.error || "Verifique os dados informados.", "error");
+      return;
+    }
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+    localStorage.setItem(SESSION_KEY, "on");
+    setupStatus = { needsSetup: false };
+    await hydrateStateFromServer();
+    await showAlert("Administrador criado", "Agora você pode cadastrar os funcionários dentro do sistema.", "success");
+    render();
+  } catch {
+    await showAlert("Erro de conexão", "Não foi possível criar o administrador agora.", "error");
+  }
 }
 
 async function activateLicense(licenseKey) {
@@ -1802,7 +1904,7 @@ function addAssignmentRoute() {
   renderAssignmentRoutes();
 }
 
-function saveAssignmentForm(row) {
+async function saveAssignmentForm(row) {
   const form = $("#assignmentForm");
   if (!form.reportValidity()) return false;
   const values = Object.fromEntries(new FormData(form).entries());
@@ -1823,18 +1925,18 @@ function saveAssignmentForm(row) {
     state.assignments.unshift(created);
     state.selected.assignments = created.id;
   }
-  saveAssignmentRouteContacts(record.routes);
+  await saveAssignmentRouteContacts(record.routes);
   saveState();
   modalCloseHandler = null;
   render();
   return true;
 }
 
-function saveAssignmentRouteContacts(routes) {
-  routes.filter(route => route.phone && route.interviewee).forEach(route => {
+async function saveAssignmentRouteContacts(routes) {
+  for (const route of routes.filter(route => route.phone && route.interviewee)) {
     const exists = state.contacts.some(contact => contact.phone === route.phone || contact.name?.toLowerCase() === route.interviewee.toLowerCase());
-    if (exists) return;
-    if (confirm(`Deseja deixar o telefone de ${route.interviewee} salvo na Agenda?`)) {
+    if (exists) continue;
+    if (await showConfirm("Salvar contato", `Deseja deixar o telefone de ${route.interviewee} salvo na Agenda?`, "Salvar contato", "info")) {
       state.contacts.unshift(rec("contact", {
         name: route.interviewee,
         profession: "",
@@ -1844,7 +1946,7 @@ function saveAssignmentRouteContacts(routes) {
         notes: [route.address, route.notes].filter(Boolean).join("\n")
       }));
     }
-  });
+  }
 }
 
 function releaseAssignmentLock(row, shouldRender = true) {
@@ -3821,6 +3923,57 @@ function openModal(title, body, onConfirm, confirmText = "Sim") {
   modalHandler = onConfirm;
   modalCloseHandler = null;
 }
+function showAlert(title, message, type = "info") {
+  return new Promise((resolve) => {
+    const icon = {
+      success: "fa-circle-check",
+      error: "fa-circle-exclamation",
+      warning: "fa-triangle-exclamation",
+      info: "fa-circle-info"
+    }[type] || "fa-circle-info";
+    $("#modalTitle").textContent = title;
+    $("#modalBody").innerHTML = `
+      <div class="modal-alert ${type}">
+        <i class="fa-solid ${icon}"></i>
+        <p>${escapeHtml(message)}</p>
+      </div>
+    `;
+    $("#modalConfirm").textContent = "OK";
+    $("#modalCancel").textContent = "Fechar";
+    $("#modalCancel").hidden = true;
+    $("#modal").hidden = false;
+    modalHandler = () => {
+      $("#modalCancel").hidden = false;
+      resolve(true);
+      return true;
+    };
+    modalCloseHandler = () => {
+      $("#modalCancel").hidden = false;
+      resolve(false);
+    };
+  });
+}
+function showConfirm(title, message, confirmText = "Confirmar", type = "warning") {
+  return new Promise((resolve) => {
+    const icon = type === "error" ? "fa-circle-exclamation" : "fa-triangle-exclamation";
+    $("#modalTitle").textContent = title;
+    $("#modalBody").innerHTML = `
+      <div class="modal-alert ${type}">
+        <i class="fa-solid ${icon}"></i>
+        <p>${escapeHtml(message)}</p>
+      </div>
+    `;
+    $("#modalConfirm").textContent = confirmText;
+    $("#modalCancel").textContent = "Cancelar";
+    $("#modalCancel").hidden = false;
+    $("#modal").hidden = false;
+    modalHandler = () => {
+      resolve(true);
+      return true;
+    };
+    modalCloseHandler = () => resolve(false);
+  });
+}
 function closeModal() {
   if (modalCloseHandler) modalCloseHandler();
   $("#modal").hidden = true;
@@ -3948,6 +4101,10 @@ function initials(value) {
 }
 
 function showToast(message, type = "info") {
+  if (["error", "warning"].includes(type)) {
+    showAlert(type === "error" ? "Atenção" : "Aviso", message, type);
+    return;
+  }
   let toast = $("#toast");
   if (!toast) {
     toast = document.createElement("div");

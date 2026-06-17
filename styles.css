@@ -1114,8 +1114,9 @@ textarea { resize: vertical; line-height: 1.45; }
   position: relative;
   width: min(420px, calc(100vw - 32px));
   background: white;
-  box-shadow: 0 18px 44px rgba(0,0,0,.25);
-  border-radius: 8px;
+  box-shadow: 0 28px 90px rgba(15,23,42,.28);
+  border: 1px solid rgba(219,227,238,.92);
+  border-radius: 16px;
   overflow: hidden;
 }
 .modal-card:has(.assignment-form) {
@@ -1131,6 +1132,31 @@ textarea { resize: vertical; line-height: 1.45; }
 .modal-header, .modal-actions { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; }
 .modal-body { padding: 6px 16px 18px; }
 .modal-actions { justify-content: flex-end; gap: 8px; border-top: 1px solid var(--line); }
+.modal-alert {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 14px;
+  align-items: start;
+  padding: 12px 2px 4px;
+}
+.modal-alert i {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #e8f2ff;
+  color: var(--primary);
+  font-size: 20px;
+}
+.modal-alert.error i { background: #fee2e2; color: #dc2626; }
+.modal-alert.warning i { background: #fff7ed; color: #ea580c; }
+.modal-alert.success i { background: #dcfce7; color: #16a34a; }
+.modal-alert p {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.55;
+}
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

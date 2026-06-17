@@ -52,7 +52,9 @@ async function callLicenseApi(endpoint, payload) {
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok || data.ok === false) {
-    throw new Error(data.error || "Erro ao validar licenca.");
+    const error = new Error(data.error || "Erro ao validar licenca.");
+    error.status = response.status;
+    throw error;
   }
   return data;
 }
@@ -82,6 +84,17 @@ router.get("/status", async (req, res) => {
       license: data.license
     });
   } catch (error) {
+    if ([401, 403].includes(error.status) || /bloqueada|inativa|expirada|invalido|inválido/i.test(error.message)) {
+      const store = await readLicenseStore();
+      await writeLicenseStore({ machineId: store.machineId, lastError: error.message });
+      return res.json({
+        configured: true,
+        activated: false,
+        blocked: true,
+        error: error.message
+      });
+    }
+
     const store = await readLicenseStore();
     const lastActivationAt = store.activatedAt ? new Date(store.activatedAt).getTime() : 0;
     const graceDays = Number(store.offlineGraceDays || process.env.OFFLINE_GRACE_DAYS || 7);

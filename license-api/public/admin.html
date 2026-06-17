@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link rel="stylesheet" href="/assets/site.css" />
   </head>
   <body class="admin-body">
@@ -109,6 +110,21 @@
         </section>
       </main>
     </section>
+
+    <div id="siteModal" class="site-modal" hidden>
+      <div class="site-modal-backdrop"></div>
+      <div class="site-modal-card">
+        <div class="site-modal-header">
+          <strong id="siteModalTitle">Aviso</strong>
+          <button id="siteModalClose" class="mini-button" type="button">Fechar</button>
+        </div>
+        <div id="siteModalBody" class="site-modal-body"></div>
+        <div class="site-modal-actions">
+          <button id="siteModalCancel" class="button secondary" type="button">Cancelar</button>
+          <button id="siteModalConfirm" class="button primary" type="button">OK</button>
+        </div>
+      </div>
+    </div>
 
     <div id="toast" class="toast" hidden></div>
     <script src="/assets/admin.js"></script>

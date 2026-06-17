@@ -31,6 +31,7 @@ async function listLicenses(req, res) {
     licenses: (data || []).map((license) => ({
       id: license.id,
       customerId: license.customer_id,
+      licenseKeyLabel: license.license_key_label,
       customerName: license.customer_name,
       customerEmail: license.customer_email,
       customer: license.customers ? {
@@ -86,6 +87,7 @@ async function createLicense(req, res) {
     .insert({
       customer_id: customer?.id || null,
       license_key_hash: hashLicenseKey(licenseKey),
+      license_key_label: maskLicenseKey(licenseKey),
       customer_name: String(body.customerName || customer?.name || "").trim(),
       customer_email: String(body.customerEmail || customer?.email || "").trim() || null,
       plan: String(body.plan || "standard").trim(),
@@ -109,6 +111,7 @@ async function createLicense(req, res) {
     licenseKey,
     license: {
       id: data.id,
+      licenseKeyLabel: data.license_key_label,
       customerName: data.customer_name,
       customerEmail: data.customer_email,
       plan: data.plan,
@@ -117,4 +120,10 @@ async function createLicense(req, res) {
       maxActivations: data.max_activations
     }
   });
+}
+
+function maskLicenseKey(licenseKey) {
+  const parts = String(licenseKey).split("-");
+  if (parts.length <= 2) return licenseKey;
+  return `${parts[0]}-****-****-****-${parts[parts.length - 1]}`;
 }

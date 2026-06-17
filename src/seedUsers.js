@@ -5,6 +5,7 @@ async function seedIfEmpty() {
   const db = getDb();
   const count = await db.get("SELECT COUNT(*) as total FROM users");
   if (count.total > 0) return;
+  if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) return;
 
   const users = [
     [

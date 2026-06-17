@@ -19,17 +19,73 @@ const metricCustomers = document.querySelector("#metricCustomers");
 const metricTotal = document.querySelector("#metricTotal");
 const metricActive = document.querySelector("#metricActive");
 const metricMachines = document.querySelector("#metricMachines");
+const siteModal = document.querySelector("#siteModal");
+const siteModalTitle = document.querySelector("#siteModalTitle");
+const siteModalBody = document.querySelector("#siteModalBody");
+const siteModalCancel = document.querySelector("#siteModalCancel");
+const siteModalConfirm = document.querySelector("#siteModalConfirm");
+const siteModalClose = document.querySelector("#siteModalClose");
 
 let token = localStorage.getItem(TOKEN_KEY) || "";
 let customers = [];
 
 function showToast(message) {
+  if (!toast || /erro|inv[aá]lido|negado|expir|aten/i.test(message)) {
+    showSiteAlert("Aviso", message, "warning");
+    return;
+  }
   toast.textContent = message;
   toast.hidden = false;
   window.clearTimeout(showToast.timer);
   showToast.timer = window.setTimeout(() => {
     toast.hidden = true;
   }, 3200);
+}
+
+function showSiteAlert(title, message, type = "info") {
+  return new Promise((resolve) => {
+    openSiteModal(title, message, type, false, "OK", resolve);
+  });
+}
+
+function showSiteConfirm(title, message, confirmText = "Confirmar", type = "warning") {
+  return new Promise((resolve) => {
+    openSiteModal(title, message, type, true, confirmText, resolve);
+  });
+}
+
+function openSiteModal(title, message, type, cancellable, confirmText, resolve) {
+  if (!siteModal) {
+    resolve(window.confirm(message));
+    return;
+  }
+  const icon = {
+    success: "fa-circle-check",
+    error: "fa-circle-exclamation",
+    warning: "fa-triangle-exclamation",
+    info: "fa-circle-info"
+  }[type] || "fa-circle-info";
+  siteModalTitle.textContent = title;
+  siteModalBody.innerHTML = `
+    <div class="modal-alert ${type}">
+      <i class="fa-solid ${icon}"></i>
+      <p>${escapeHtml(message)}</p>
+    </div>
+  `;
+  siteModalConfirm.textContent = confirmText;
+  siteModalCancel.hidden = !cancellable;
+  siteModal.hidden = false;
+
+  const finish = (value) => {
+    siteModal.hidden = true;
+    siteModalConfirm.onclick = null;
+    siteModalCancel.onclick = null;
+    siteModalClose.onclick = null;
+    resolve(value);
+  };
+  siteModalConfirm.onclick = () => finish(true);
+  siteModalCancel.onclick = () => finish(false);
+  siteModalClose.onclick = () => finish(false);
 }
 
 function authHeaders() {
@@ -55,8 +111,8 @@ async function api(path, options = {}) {
 }
 
 function setLoggedIn(value) {
-  loginView.hidden = value;
-  adminView.hidden = !value;
+  if (loginView) loginView.hidden = value;
+  if (adminView) adminView.hidden = !value;
   if (value) refreshAll();
 }
 
@@ -79,25 +135,27 @@ function activeActivations(license) {
 }
 
 function renderMetrics(licenses) {
-  metricCustomers.textContent = customers.length;
-  metricTotal.textContent = licenses.length;
-  metricActive.textContent = licenses.filter((license) => license.status === "active").length;
-  metricMachines.textContent = licenses.reduce((total, license) => total + activeActivations(license).length, 0);
+  setText(metricCustomers, customers.length);
+  setText(metricTotal, licenses.length);
+  setText(metricActive, licenses.filter((license) => license.status === "active").length);
+  setText(metricMachines, licenses.reduce((total, license) => total + activeActivations(license).length, 0));
 }
 
 function renderCustomers() {
-  customersSummary.textContent = `${customers.length} cliente(s)`;
-  metricCustomers.textContent = customers.length;
-  licenseCustomerSelect.innerHTML = `<option value="">Selecionar cliente</option>` + customers.map((customer) => (
-    `<option value="${customer.id}">${escapeHtml(customer.name)}${customer.company ? ` - ${escapeHtml(customer.company)}` : ""}</option>`
-  )).join("");
+  setText(customersSummary, `${customers.length} cliente(s)`);
+  setText(metricCustomers, customers.length);
+  if (licenseCustomerSelect) {
+    licenseCustomerSelect.innerHTML = `<option value="">Selecionar cliente</option>` + customers.map((customer) => (
+      `<option value="${customer.id}">${escapeHtml(customer.name)}${customer.company ? ` - ${escapeHtml(customer.company)}` : ""}</option>`
+    )).join("");
+  }
 
   if (!customers.length) {
-    customerList.innerHTML = `<div class="license-card">Nenhum cliente cadastrado.</div>`;
+    if (customerList) customerList.innerHTML = `<div class="license-card">Nenhum cliente cadastrado.</div>`;
     return;
   }
 
-  customerList.innerHTML = customers.map((customer) => `
+  if (customerList) customerList.innerHTML = customers.map((customer) => `
     <article class="license-card customer-card">
       <div class="license-card-header">
         <div class="license-title">
@@ -119,15 +177,15 @@ function renderCustomers() {
 }
 
 function renderLicenses(licenses) {
-  summaryText.textContent = `${licenses.length} licenca(s)`;
+  setText(summaryText, `${licenses.length} licenca(s)`);
   renderMetrics(licenses);
 
   if (!licenses.length) {
-    licenseList.innerHTML = `<div class="license-card">Nenhuma licenca cadastrada.</div>`;
+    if (licenseList) licenseList.innerHTML = `<div class="license-card">Nenhuma licenca cadastrada.</div>`;
     return;
   }
 
-  licenseList.innerHTML = licenses.map((license) => `
+  if (licenseList) licenseList.innerHTML = licenses.map((license) => `
     <article class="license-card">
       <div class="license-card-header">
         <div class="license-title">
@@ -137,6 +195,7 @@ function renderLicenses(licenses) {
             Plano: ${escapeHtml(license.plan)} - Validade: ${formatDate(license.expiresAt)} -
             Ativacoes: ${activeActivations(license).length}/${license.maxActivations}
           </span>
+          <code class="license-key-label">${escapeHtml(license.licenseKeyLabel || "Chave antiga sem exibicao")}</code>
         </div>
         <div class="license-actions">
           <span class="status ${license.status}">${statusLabel(license.status)}</span>
@@ -174,9 +233,13 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
+function setText(node, value) {
+  if (node) node.textContent = value;
+}
+
 async function loadLicenses() {
-  summaryText.textContent = "Carregando...";
-  licenseList.innerHTML = "";
+  setText(summaryText, "Carregando...");
+  if (licenseList) licenseList.innerHTML = "";
   try {
     const data = await api("/api/admin/licenses");
     renderLicenses(data.licenses || []);
@@ -218,7 +281,7 @@ async function runAction(action, payload = {}) {
   await loadLicenses();
 }
 
-loginForm.addEventListener("submit", async (event) => {
+loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const values = Object.fromEntries(new FormData(event.currentTarget).entries());
   try {
@@ -237,7 +300,7 @@ loginForm.addEventListener("submit", async (event) => {
   }
 });
 
-licenseForm.addEventListener("submit", async (event) => {
+licenseForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(licenseForm);
   const payload = Object.fromEntries(formData.entries());
@@ -248,8 +311,10 @@ licenseForm.addEventListener("submit", async (event) => {
       method: "POST",
       body: JSON.stringify(payload)
     });
-    createdLicense.hidden = false;
-    createdLicense.innerHTML = `Chave gerada: <code>${escapeHtml(data.licenseKey)}</code>`;
+    if (createdLicense) {
+      createdLicense.hidden = false;
+      createdLicense.innerHTML = `Chave gerada: <code>${escapeHtml(data.licenseKey)}</code>`;
+    }
     licenseForm.reset();
     licenseForm.elements.plan.value = "standard";
     licenseForm.elements.maxActivations.value = "1";
@@ -260,7 +325,7 @@ licenseForm.addEventListener("submit", async (event) => {
   }
 });
 
-licenseList.addEventListener("click", async (event) => {
+licenseList?.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-action]");
   if (!button) return;
 
@@ -272,7 +337,7 @@ licenseList.addEventListener("click", async (event) => {
     if (action === "activate") await runAction("set-status", { licenseId: id, status: "active" });
     if (action === "renew") await runAction("renew-one-year", { licenseId: id });
     if (action === "revoke") await runAction("revoke-activation", { activationId: id });
-    if (action === "delete" && confirm("Excluir esta licenca?")) {
+    if (action === "delete" && await showSiteConfirm("Excluir licença", "Deseja excluir esta licença? Esta ação não pode ser desfeita.", "Excluir", "error")) {
       await runAction("delete-license", { licenseId: id });
     }
     showToast("Acao concluida.");
@@ -281,9 +346,9 @@ licenseList.addEventListener("click", async (event) => {
   }
 });
 
-document.querySelector("#refreshButton").addEventListener("click", refreshAll);
+document.querySelector("#refreshButton")?.addEventListener("click", refreshAll);
 
-customerForm.addEventListener("submit", async (event) => {
+customerForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const payload = Object.fromEntries(new FormData(customerForm).entries());
   const method = payload.id ? "PUT" : "POST";
@@ -302,12 +367,12 @@ customerForm.addEventListener("submit", async (event) => {
   }
 });
 
-document.querySelector("#clearCustomerForm").addEventListener("click", () => {
+document.querySelector("#clearCustomerForm")?.addEventListener("click", () => {
   customerForm.reset();
   customerForm.elements.id.value = "";
 });
 
-customerList.addEventListener("click", (event) => {
+customerList?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-customer-action]");
   if (!button) return;
   const customer = customers.find((item) => item.id === button.dataset.id);
@@ -329,7 +394,7 @@ customerList.addEventListener("click", (event) => {
   }
 });
 
-document.querySelector("#logoutButton").addEventListener("click", () => {
+document.querySelector("#logoutButton")?.addEventListener("click", () => {
   localStorage.removeItem(TOKEN_KEY);
   token = "";
   setLoggedIn(false);
@@ -340,9 +405,9 @@ document.querySelectorAll(".admin-nav[data-view]").forEach((button) => {
     document.querySelectorAll(".admin-nav[data-view]").forEach((item) => item.classList.remove("active"));
     button.classList.add("active");
     const view = button.dataset.view;
-    createPanel.hidden = view !== "create";
-    licensesPanel.hidden = view !== "licenses";
-    customersPanel.hidden = view !== "customers";
+    if (createPanel) createPanel.hidden = view !== "create";
+    if (licensesPanel) licensesPanel.hidden = view !== "licenses";
+    if (customersPanel) customersPanel.hidden = view !== "customers";
   });
 });
 
