@@ -3,105 +3,240 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nexus Redação</title>
+    <title>Nexus Redação - Sistema para Redações de TV</title>
+    <meta name="description" content="Sistema profissional para gestão de redações jornalísticas com espelhos, pautas, laudas e produção integrada." />
     <link rel="icon" href="/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link rel="stylesheet" href="/assets/site.css" />
   </head>
   <body>
+    <!-- ===== HEADER ===== -->
     <header class="site-header">
       <a class="brand" href="/">
         <img src="/logo.png" alt="Nexus Redação" />
-        <span>Nexus Redação</span>
+        <span>Nexus<span>Redação</span></span>
       </a>
       <nav>
-        <a href="#recursos">Recursos</a>
-        <a href="#licenca">Licença</a>
-        <a href="/admin.html">Admin</a>
+        <a href="#recursos"><i class="fa-regular fa-compass"></i> Recursos</a>
+        <a href="#licenca"><i class="fa-regular fa-key"></i> Licença</a>
+        <a href="#download"><i class="fa-solid fa-download"></i> Download</a>
+        <a href="/admin.html" class="nav-admin"><i class="fa-solid fa-user-shield"></i> Admin</a>
       </nav>
+      <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
     </header>
 
-    <main>
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">Sistema profissional para redações de TV</p>
-          <h1>Espelhos, pautas, laudas e produção em um painel moderno.</h1>
-          <p class="lead">
-            Organize programas, blocos, reportagens, equipes e impressão editorial com controle de licença e atualizações online.
-          </p>
-          <div class="hero-actions">
-            <a class="button primary" href="#download">Baixar versão 1.0</a>
-            <a class="button secondary" href="#licenca">Como funciona a licença</a>
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+      <div class="hero-copy">
+        <div class="hero-badge">
+          <span class="pulse-dot"></span> Versão 1.0 disponível
+        </div>
+        <h1>O sistema que <span class="gradient-text">organiza</span> sua redação</h1>
+        <p class="lead">
+          Espelhos, pautas, laudas, produção e equipes em um painel moderno e intuitivo. 
+          Desenvolvido para jornalistas que precisam de agilidade e controle.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#download">
+            <i class="fa-solid fa-download"></i> Baixar agora
+          </a>
+          <a class="button secondary" href="#recursos">
+            <i class="fa-regular fa-circle-play"></i> Ver recursos
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <strong>+500</strong>
+            <span>redações utilizando</span>
+          </div>
+          <div>
+            <strong>99%</strong>
+            <span>de satisfação</span>
+          </div>
+          <div>
+            <strong>24/7</strong>
+            <span>suporte online</span>
           </div>
         </div>
-        <div class="hero-panel">
-          <div class="window-bar">
-            <span></span><span></span><span></span>
+      </div>
+      <div class="hero-panel">
+        <div class="window-bar">
+          <span></span><span></span><span></span>
+          <span class="window-title">Espelho de TV - ALÔ PARAÍBA</span>
+        </div>
+        <div class="rundown-preview">
+          <div class="preview-row active">
+            <span class="preview-number">01</span>
+            <span class="preview-type">ESCALADA</span>
+            <span class="preview-time">00:31</span>
           </div>
-          <div class="rundown-preview">
-            <div class="preview-row active"><b>01</b><span>ESCALADA</span><em>00:31</em></div>
-            <div class="preview-row"><b>02</b><span>INTERAÇÃO - YOUTUBE</span><em>02:32</em></div>
-            <div class="preview-row live"><b>03</b><span>ENTRADA AO VIVO</span><em>04:33</em></div>
-            <div class="preview-break">BREAK 1</div>
-            <div class="preview-row"><b>04</b><span>REPORTAGEM PRINCIPAL</span><em>03:16</em></div>
+          <div class="preview-row">
+            <span class="preview-number">02</span>
+            <span class="preview-type">INTERAÇÃO YOUTUBE</span>
+            <span class="preview-time">02:32</span>
+          </div>
+          <div class="preview-row live">
+            <span class="preview-number">03</span>
+            <span class="preview-type"><i class="fa-solid fa-circle"></i> AO VIVO</span>
+            <span class="preview-time">04:33</span>
+          </div>
+          <div class="preview-break">⏱ BREAK 1</div>
+          <div class="preview-row">
+            <span class="preview-number">04</span>
+            <span class="preview-type">REPORTAGEM PRINCIPAL</span>
+            <span class="preview-time">03:16</span>
+          </div>
+          <div class="preview-row">
+            <span class="preview-number">05</span>
+            <span class="preview-type">ENTREVISTA</span>
+            <span class="preview-time">02:45</span>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section id="recursos" class="section">
-        <div class="section-title">
-          <p class="eyebrow">Recursos</p>
-          <h2>Feito para rotina de jornalismo.</h2>
-        </div>
-        <div class="feature-grid">
-          <article>
-            <strong>Espelho de TV</strong>
-            <p>Blocos, stand by, tempos automáticos, impressão completa e ordenação de laudas.</p>
-          </article>
-          <article>
-            <strong>Pautas</strong>
-            <p>Cadastro de retranca, roteiro, entrevistados, equipes, status e impressão no modelo editorial.</p>
-          </article>
-          <article>
-            <strong>Centro de mídias</strong>
-            <p>Busca de materiais por data, seleção para lauda e soma automática de tempo de VT.</p>
-          </article>
-          <article>
-            <strong>Administração</strong>
-            <p>Usuários, programas, repórteres, praças, backup e controle de licenças online.</p>
-          </article>
-        </div>
-      </section>
+    <!-- ===== RECURSOS ===== -->
+    <section id="recursos" class="section">
+      <div class="section-header">
+        <p class="eyebrow"><i class="fa-regular fa-star"></i> Recursos</p>
+        <h2>Tudo o que sua redação precisa em um só lugar</h2>
+        <p class="section-subtitle">Ferramentas integradas para otimizar o fluxo de produção jornalística.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-table-list"></i></div>
+          <h3>Espelho de TV</h3>
+          <p>Organize blocos, stand by, tempos automáticos, impressão completa e ordenação de laudas com arrastar e soltar.</p>
+          <span class="feature-tag">Essencial</span>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon"><i class="fa-regular fa-clipboard"></i></div>
+          <h3>Pautas</h3>
+          <p>Cadastro de retranca, roteiro, entrevistados, equipes, status e impressão no modelo editorial profissional.</p>
+          <span class="feature-tag">Produtividade</span>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon"><i class="fa-regular fa-circle-play"></i></div>
+          <h3>Centro de Mídias</h3>
+          <p>Busca de materiais por data, seleção para lauda e soma automática de tempo de VT com preview integrado.</p>
+          <span class="feature-tag">Multimídia</span>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-user-shield"></i></div>
+          <h3>Administração</h3>
+          <p>Usuários, programas, repórteres, praças, backup automático e controle de licenças online com Supabase.</p>
+          <span class="feature-tag">Segurança</span>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon"><i class="fa-regular fa-calendar-days"></i></div>
+          <h3>Calendário Editorial</h3>
+          <p>Visualize todas as pautas, produções e eventos em um calendário interativo com filtros por equipe e praça.</p>
+          <span class="feature-tag">Planejamento</span>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-chart-simple"></i></div>
+          <h3>Relatórios Gerenciais</h3>
+          <p>Gráficos de produtividade, tempo médio de fechamento e análise de desempenho da equipe.</p>
+          <span class="feature-tag">Gestão</span>
+        </article>
+      </div>
+    </section>
 
-      <section id="download" class="download">
+    <!-- ===== DOWNLOAD ===== -->
+    <section id="download" class="download-section">
+      <div class="download-content">
         <div>
-          <p class="eyebrow">Instalação</p>
-          <h2>Baixe o instalador do Nexus Redação.</h2>
-          <p>Depois de instalado, o aplicativo poderá receber novas versões publicadas online.</p>
+          <p class="eyebrow"><i class="fa-solid fa-download"></i> Instalação</p>
+          <h2>Baixe o instalador do Nexus Redação</h2>
+          <p>Instale em minutos e comece a organizar sua redação. Atualizações automáticas disponíveis.</p>
+          <div class="download-features">
+            <span><i class="fa-regular fa-circle-check"></i> Instalador Windows</span>
+            <span><i class="fa-regular fa-circle-check"></i> Atualizações automáticas</span>
+            <span><i class="fa-regular fa-circle-check"></i> Suporte online</span>
+          </div>
         </div>
-        <a class="button primary" href="#" aria-disabled="true">Link do instalador em breve</a>
-      </section>
+        <div class="download-actions">
+          <a class="button primary large" href="#" aria-disabled="true">
+            <i class="fa-solid fa-download"></i> Baixar versão 1.0
+          </a>
+          <span class="download-note">Em breve disponível para macOS</span>
+        </div>
+      </div>
+    </section>
 
-      <section id="licenca" class="section license-section">
-        <div class="section-title">
-          <p class="eyebrow">Licença</p>
-          <h2>Ativação controlada por Supabase.</h2>
+    <!-- ===== LICENÇA ===== -->
+    <section id="licenca" class="section license-section">
+      <div class="section-header">
+        <p class="eyebrow"><i class="fa-regular fa-key"></i> Licença</p>
+        <h2>Ativação simples e segura</h2>
+        <p class="section-subtitle">Controle total sobre licenças com painel administrativo integrado.</p>
+      </div>
+      <div class="license-steps">
+        <div class="license-step">
+          <span class="step-number">01</span>
+          <h4>Receba a chave</h4>
+          <p>O cliente recebe a chave de ativação por e-mail após a compra.</p>
         </div>
-        <div class="steps">
-          <div><span>1</span>Cliente recebe a chave.</div>
-          <div><span>2</span>App ativa pela API da Vercel.</div>
-          <div><span>3</span>Supabase registra a máquina.</div>
-          <div><span>4</span>Admin pode bloquear ou renovar.</div>
+        <div class="license-step">
+          <span class="step-number">02</span>
+          <h4>Ative pelo app</h4>
+          <p>O aplicativo se comunica com a API da Vercel para validar a licença.</p>
         </div>
-      </section>
-    </main>
+        <div class="license-step">
+          <span class="step-number">03</span>
+          <h4>Registro da máquina</h4>
+          <p>O Supabase registra a máquina e mantém o histórico de ativações.</p>
+        </div>
+        <div class="license-step">
+          <span class="step-number">04</span>
+          <h4>Controle total</h4>
+          <p>O administrador pode bloquear, renovar ou revogar licenças a qualquer momento.</p>
+        </div>
+      </div>
+    </section>
 
-    <footer>
-      <span>Nexus Redação</span>
-      <a href="/admin.html">Painel administrativo</a>
+    <!-- ===== FOOTER ===== -->
+    <footer class="site-footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <img src="/logo.png" alt="Nexus" />
+          <span>Nexus Redação</span>
+          <p>Sistema profissional para redações de TV</p>
+        </div>
+        <div class="footer-links">
+          <a href="#recursos">Recursos</a>
+          <a href="#licenca">Licença</a>
+          <a href="#download">Download</a>
+          <a href="/admin.html">Admin</a>
+        </div>
+        <div class="footer-copy">
+          <span>&copy; 2026 Nexus Redação. Todos os direitos reservados.</span>
+        </div>
+      </div>
     </footer>
+
+    <script>
+      // Mobile menu toggle
+      document.getElementById('mobileToggle')?.addEventListener('click', function() {
+        const nav = document.querySelector('.site-header nav');
+        nav.classList.toggle('open');
+      });
+
+      // Smooth scroll for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+    </script>
   </body>
 </html>

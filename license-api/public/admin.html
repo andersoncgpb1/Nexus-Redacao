@@ -7,116 +7,248 @@
     <link rel="icon" href="/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link rel="stylesheet" href="/assets/site.css" />
   </head>
   <body class="admin-body">
+    <!-- ===== LOGIN ===== -->
     <section id="loginView" class="admin-login">
       <div class="admin-login-card">
-        <img src="/logo.png" alt="Nexus Redação" />
-        <h1>Painel Admin</h1>
-        <p>Entre com o usuário e senha configurados na Vercel.</p>
+        <div class="login-brand">
+          <img src="/logo.png" alt="Nexus Redação" />
+          <h1>Painel Administrativo</h1>
+        </div>
+        <p>Entre com suas credenciais para gerenciar licenças e clientes.</p>
         <form id="adminLoginForm">
-          <input id="adminUsername" name="username" type="text" placeholder="Usuário" autocomplete="username" required />
-          <input id="adminPassword" name="password" type="password" placeholder="Senha" autocomplete="current-password" required />
-          <button class="button primary" type="submit">Entrar</button>
+          <div class="input-group">
+            <i class="fa-regular fa-user"></i>
+            <input id="adminUsername" name="username" type="text" placeholder="Usuário" autocomplete="username" required />
+          </div>
+          <div class="input-group">
+            <i class="fa-regular fa-lock"></i>
+            <input id="adminPassword" name="password" type="password" placeholder="Senha" autocomplete="current-password" required />
+          </div>
+          <button class="button primary" type="submit">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> Entrar
+          </button>
         </form>
+        <div class="login-footer">
+          <a href="/">← Voltar para o site</a>
+        </div>
       </div>
     </section>
 
+    <!-- ===== DASHBOARD ===== -->
     <section id="adminView" class="admin-shell" hidden>
+      <!-- Sidebar -->
       <aside class="admin-sidebar">
         <a class="brand" href="/">
           <img src="/logo.png" alt="Nexus" />
           <span>Nexus</span>
         </a>
-        <button class="admin-nav active" data-view="licenses">Licenças</button>
-        <button class="admin-nav" data-view="create">Nova licença</button>
-        <button class="admin-nav" data-view="customers">Clientes</button>
-        <button class="admin-nav" id="logoutButton">Sair</button>
+        <nav class="admin-nav-menu">
+          <button class="admin-nav active" data-view="licenses">
+            <i class="fa-solid fa-table-list"></i> Licenças
+          </button>
+          <button class="admin-nav" data-view="create">
+            <i class="fa-solid fa-plus"></i> Nova licença
+          </button>
+          <button class="admin-nav" data-view="customers">
+            <i class="fa-regular fa-address-book"></i> Clientes
+          </button>
+          <div class="nav-divider"></div>
+          <button class="admin-nav" id="logoutButton">
+            <i class="fa-solid fa-right-from-bracket"></i> Sair
+          </button>
+        </nav>
       </aside>
 
+      <!-- Main Content -->
       <main class="admin-main">
+        <!-- Top Bar -->
         <header class="admin-top">
           <div>
-            <p class="eyebrow">Administração</p>
+            <p class="eyebrow"><i class="fa-regular fa-gauge-high"></i> Administração</p>
             <h1>Licenças Nexus Redação</h1>
           </div>
           <div class="admin-top-actions">
-            <button id="refreshButton" class="button secondary">Atualizar</button>
+            <button id="refreshButton" class="button secondary">
+              <i class="fa-solid fa-rotate"></i> Atualizar
+            </button>
           </div>
         </header>
 
+        <!-- Metrics -->
         <section class="admin-metrics">
-          <article><span id="metricCustomers">0</span><strong>Clientes</strong></article>
-          <article><span id="metricTotal">0</span><strong>Licenças</strong></article>
-          <article><span id="metricActive">0</span><strong>Ativas</strong></article>
-          <article><span id="metricMachines">0</span><strong>Máquinas</strong></article>
+          <article class="metric-card">
+            <i class="fa-regular fa-users metric-icon"></i>
+            <div>
+              <span id="metricCustomers">0</span>
+              <strong>Clientes</strong>
+            </div>
+          </article>
+          <article class="metric-card">
+            <i class="fa-regular fa-file-lines metric-icon"></i>
+            <div>
+              <span id="metricTotal">0</span>
+              <strong>Licenças</strong>
+            </div>
+          </article>
+          <article class="metric-card success">
+            <i class="fa-regular fa-circle-check metric-icon"></i>
+            <div>
+              <span id="metricActive">0</span>
+              <strong>Ativas</strong>
+            </div>
+          </article>
+          <article class="metric-card">
+            <i class="fa-solid fa-computer metric-icon"></i>
+            <div>
+              <span id="metricMachines">0</span>
+              <strong>Máquinas</strong>
+            </div>
+          </article>
         </section>
 
+        <!-- Create License Panel -->
         <section id="createPanel" class="admin-card" hidden>
-          <h2>Nova licença</h2>
+          <div class="card-header">
+            <h2><i class="fa-solid fa-plus-circle"></i> Nova licença</h2>
+            <p>Preencha os dados para gerar uma nova chave de ativação.</p>
+          </div>
           <form id="licenseForm" class="admin-form">
-            <label class="wide">Cliente cadastrado
+            <label class="wide">
+              <span>Cliente cadastrado</span>
               <select name="customerId" id="licenseCustomerSelect">
-                <option value="">Selecionar cliente</option>
+                <option value="">Selecionar cliente existente</option>
               </select>
             </label>
-            <label>Cliente avulso<input name="customerName" placeholder="Nome da empresa ou cliente" /></label>
-            <label>E-mail<input name="customerEmail" type="email" placeholder="cliente@email.com" /></label>
-            <label>Plano<input name="plan" value="standard" /></label>
-            <label>Validade<input name="expiresAt" type="datetime-local" /></label>
-            <label>Máquinas<input name="maxActivations" type="number" min="1" value="1" /></label>
-            <label class="wide">Observações<textarea name="notes" rows="3"></textarea></label>
-            <button class="button primary" type="submit">Gerar licença</button>
+            <div class="form-divider">
+              <span>ou</span>
+            </div>
+            <label>
+              <span>Cliente avulso</span>
+              <input name="customerName" placeholder="Nome da empresa ou cliente" />
+            </label>
+            <label>
+              <span>E-mail</span>
+              <input name="customerEmail" type="email" placeholder="cliente@email.com" />
+            </label>
+            <label>
+              <span>Plano</span>
+              <input name="plan" value="standard" />
+            </label>
+            <label>
+              <span>Validade</span>
+              <input name="expiresAt" type="datetime-local" />
+            </label>
+            <label>
+              <span>Máquinas</span>
+              <input name="maxActivations" type="number" min="1" value="1" />
+            </label>
+            <label class="wide">
+              <span>Observações</span>
+              <textarea name="notes" rows="3"></textarea>
+            </label>
+            <div class="form-actions">
+              <button class="button primary" type="submit">
+                <i class="fa-solid fa-key"></i> Gerar licença
+              </button>
+            </div>
           </form>
-          <div id="createdLicense" class="created-license" hidden></div>
+          <div id="createdLicense" class="created-license" hidden>
+            <i class="fa-regular fa-circle-check"></i>
+            <div>
+              <strong>Licença gerada com sucesso!</strong>
+              <code id="licenseKeyDisplay"></code>
+            </div>
+          </div>
         </section>
 
+        <!-- Customers Panel -->
         <section id="customersPanel" class="admin-card" hidden>
-          <div class="card-heading">
-            <h2>Clientes</h2>
-            <span id="customersSummary">0 cliente(s)</span>
+          <div class="card-header">
+            <div>
+              <h2><i class="fa-regular fa-address-book"></i> Clientes</h2>
+              <p id="customersSummary">0 cliente(s) cadastrados</p>
+            </div>
           </div>
-          <form id="customerForm" class="admin-form">
+          <form id="customerForm" class="admin-form customer-form">
             <input type="hidden" name="id" />
-            <label>Nome<input name="name" required placeholder="Nome do cliente" /></label>
-            <label>Empresa<input name="company" placeholder="Empresa ou emissora" /></label>
-            <label>CPF/CNPJ<input name="document" placeholder="Documento" /></label>
-            <label>E-mail<input name="email" type="email" placeholder="cliente@email.com" /></label>
-            <label>Telefone<input name="phone" placeholder="(00) 00000-0000" /></label>
-            <label>Cidade<input name="city" placeholder="Cidade" /></label>
-            <label>Estado<input name="state" placeholder="UF" maxlength="2" /></label>
-            <label>Status
+            <label>
+              <span>Nome <span class="required">*</span></span>
+              <input name="name" required placeholder="Nome do cliente" />
+            </label>
+            <label>
+              <span>Empresa</span>
+              <input name="company" placeholder="Empresa ou emissora" />
+            </label>
+            <label>
+              <span>CPF/CNPJ</span>
+              <input name="document" placeholder="Documento" />
+            </label>
+            <label>
+              <span>E-mail</span>
+              <input name="email" type="email" placeholder="cliente@email.com" />
+            </label>
+            <label>
+              <span>Telefone</span>
+              <input name="phone" placeholder="(00) 00000-0000" />
+            </label>
+            <label>
+              <span>Cidade</span>
+              <input name="city" placeholder="Cidade" />
+            </label>
+            <label>
+              <span>Estado</span>
+              <input name="state" placeholder="UF" maxlength="2" />
+            </label>
+            <label>
+              <span>Status</span>
               <select name="status">
                 <option value="active">Ativo</option>
                 <option value="inactive">Inativo</option>
               </select>
             </label>
-            <label class="wide">Observações<textarea name="notes" rows="3"></textarea></label>
-            <button class="button primary" type="submit">Salvar cliente</button>
-            <button class="button secondary" type="button" id="clearCustomerForm">Limpar</button>
+            <label class="wide">
+              <span>Observações</span>
+              <textarea name="notes" rows="3"></textarea>
+            </label>
+            <div class="form-actions">
+              <button class="button primary" type="submit">
+                <i class="fa-regular fa-floppy-disk"></i> Salvar cliente
+              </button>
+              <button class="button secondary" type="button" id="clearCustomerForm">
+                <i class="fa-solid fa-eraser"></i> Limpar
+              </button>
+            </div>
           </form>
           <div id="customerList" class="customer-list"></div>
         </section>
 
+        <!-- Licenses Panel -->
         <section id="licensesPanel" class="admin-card">
-          <div class="card-heading">
-            <h2>Licenças cadastradas</h2>
-            <span id="summaryText">Carregando...</span>
+          <div class="card-header">
+            <div>
+              <h2><i class="fa-regular fa-file-lines"></i> Licenças cadastradas</h2>
+              <p id="summaryText">Carregando...</p>
+            </div>
           </div>
           <div id="licenseList" class="license-list"></div>
         </section>
       </main>
     </section>
 
+    <!-- ===== MODAL ===== -->
     <div id="siteModal" class="site-modal" hidden>
       <div class="site-modal-backdrop"></div>
       <div class="site-modal-card">
         <div class="site-modal-header">
           <strong id="siteModalTitle">Aviso</strong>
-          <button id="siteModalClose" class="mini-button" type="button">Fechar</button>
+          <button id="siteModalClose" class="mini-button" type="button">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
         </div>
         <div id="siteModalBody" class="site-modal-body"></div>
         <div class="site-modal-actions">
@@ -126,7 +258,9 @@
       </div>
     </div>
 
+    <!-- ===== TOAST ===== -->
     <div id="toast" class="toast" hidden></div>
+
     <script src="/assets/admin.js"></script>
   </body>
 </html>
