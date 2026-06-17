@@ -60,6 +60,14 @@ function copyToClipboard(text, element) {
     return;
   }
   
+  // Se o texto estiver mascarado com ****, tenta pegar do dataset original
+  if (text.includes('****') && element) {
+    const fullKey = element.dataset.fullLicense || element.dataset.license;
+    if (fullKey && !fullKey.includes('****')) {
+      text = fullKey;
+    }
+  }
+  
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => {
       showCopyFeedback(element);
@@ -269,8 +277,21 @@ function renderLicenses(licenses) {
 
   if (licenseList) {
     licenseList.innerHTML = licenses.map((license) => {
-      // PEGAR A CHAVE CORRETA - prioriza licenseKey, depois licenseKeyLabel
-      const licenseKey = license.licenseKey || license.licenseKeyLabel || 'Chave não disponível';
+      // PEGAR A CHAVE COMPLETA - PRIORIZA licenseKey, DEPOIS licenseKeyLabel
+      // REMOVE QUALQUER MASCARAMENTO
+      let licenseKey = license.licenseKey || license.licenseKeyLabel || 'Chave não disponível';
+      
+      // Se a chave estiver mascarada com ****, tenta buscar a chave completa
+      if (licenseKey.includes('****') && license.licenseKeyRaw) {
+        licenseKey = license.licenseKeyRaw;
+      } else if (licenseKey.includes('****') && license.fullLicenseKey) {
+        licenseKey = license.fullLicenseKey;
+      }
+      
+      // Se ainda tiver ****, tenta buscar do campo raw
+      if (licenseKey.includes('****')) {
+        licenseKey = license.rawLicenseKey || licenseKey;
+      }
       
       return `
       <article class="license-card">
@@ -284,7 +305,10 @@ function renderLicenses(licenses) {
             </span>
             <div class="license-key-wrapper">
               <code class="license-key-full">${escapeHtml(licenseKey)}</code>
-              <button class="copy-key-btn" data-license="${escapeHtml(licenseKey)}" title="Copiar chave">
+              <button class="copy-key-btn" 
+                      data-license="${escapeHtml(licenseKey)}" 
+                      data-full-license="${escapeHtml(licenseKey)}"
+                      title="Copiar chave">
                 <i class="fa-regular fa-copy"></i> Copiar
               </button>
             </div>
@@ -320,7 +344,8 @@ function renderLicenses(licenses) {
     document.querySelectorAll('.copy-key-btn').forEach(btn => {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
-        const licenseKey = this.dataset.license;
+        // Usar o full-license se disponível, senão o license
+        const licenseKey = this.dataset.fullLicense || this.dataset.license;
         copyToClipboard(licenseKey, this);
       });
     });
@@ -440,9 +465,10 @@ licenseForm?.addEventListener("submit", async (event) => {
         copyBtn.className = 'copy-key-btn';
         copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar';
         copyBtn.dataset.license = licenseKey;
+        copyBtn.dataset.fullLicense = licenseKey;
         copyBtn.addEventListener('click', function(e) {
           e.stopPropagation();
-          copyToClipboard(this.dataset.license, this);
+          copyToClipboard(this.dataset.fullLicense || this.dataset.license, this);
         });
         keyDisplay.parentNode.appendChild(copyBtn);
       }
