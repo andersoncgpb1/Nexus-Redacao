@@ -53,13 +53,68 @@ backToTopBtn?.addEventListener('click', function() {
   });
 });
 
-// ===== TOAST =====
-function showToast(message) {
-  if (!toast || /erro|inv[aá]lido|negado|expir|aten/i.test(message)) {
-    showSiteAlert("Aviso", message, "warning");
-    return;
+// ===== FUNÇÃO COPIAR =====
+function copyToClipboard(text, element) {
+  if (!text) return;
+  
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showCopyFeedback(element);
+    }).catch(() => {
+      fallbackCopy(text, element);
+    });
+  } else {
+    fallbackCopy(text, element);
   }
+}
+
+function fallbackCopy(text, element) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  textarea.style.left = '-9999px';
+  textarea.style.top = '-9999px';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    showCopyFeedback(element);
+  } catch (err) {
+    showToast('Não foi possível copiar', 'error');
+  }
+  document.body.removeChild(textarea);
+}
+
+function showCopyFeedback(element) {
+  if (!element) return;
+  const originalHtml = element.innerHTML;
+  element.innerHTML = '<i class="fa-regular fa-check"></i> Copiado!';
+  element.style.background = '#dcfce7';
+  element.style.color = '#166534';
+  element.style.borderColor = '#86efac';
+  
+  setTimeout(() => {
+    element.innerHTML = originalHtml;
+    element.style.background = '';
+    element.style.color = '';
+    element.style.borderColor = '';
+  }, 2000);
+}
+
+// ===== TOAST =====
+function showToast(message, type = "info") {
+  if (!toast) return;
+  
+  const colors = {
+    success: '#16a34a',
+    error: '#dc2626',
+    warning: '#f59e0b',
+    info: '#0e75ed'
+  };
+  
   toast.textContent = message;
+  toast.style.background = colors[type] || colors.info;
   toast.hidden = false;
   window.clearTimeout(showToast.timer);
   showToast.timer = window.setTimeout(() => {
@@ -220,7 +275,12 @@ function renderLicenses(licenses) {
             Plano: ${escapeHtml(license.plan)} - Validade: ${formatDate(license.expiresAt)} -
             Ativacoes: ${activeActivations(license).length}/${license.maxActivations}
           </span>
-          <code class="license-key-full">${escapeHtml(license.licenseKey)}</code>
+          <div class="license-key-wrapper">
+            <code class="license-key-full">${escapeHtml(license.licenseKey)}</code>
+            <button class="copy-key-btn" data-license="${escapeHtml(license.licenseKey)}" title="Copiar chave">
+              <i class="fa-regular fa-copy"></i> Copiar
+            </button>
+          </div>
         </div>
         <div class="license-actions">
           <span class="status ${license.status}">${statusLabel(license.status)}</span>
@@ -248,6 +308,15 @@ function renderLicenses(licenses) {
       </div>
     </article>
   `).join("");
+
+  // Adicionar eventos de cópia
+  document.querySelectorAll('.copy-key-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const licenseKey = this.dataset.license;
+      copyToClipboard(licenseKey, this);
+    });
+  });
 }
 
 function escapeHtml(value) {
@@ -341,15 +410,27 @@ licenseForm?.addEventListener("submit", async (event) => {
     if (createdLicense) {
       createdLicense.hidden = false;
       const keyDisplay = document.getElementById("licenseKeyDisplay");
-      if (keyDisplay) keyDisplay.textContent = data.licenseKey;
+      if (keyDisplay) {
+        keyDisplay.textContent = data.licenseKey;
+        // Adicionar botão de copiar na licença gerada
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-key-btn';
+        copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar';
+        copyBtn.dataset.license = data.licenseKey;
+        copyBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          copyToClipboard(this.dataset.license, this);
+        });
+        keyDisplay.parentNode.appendChild(copyBtn);
+      }
     }
     licenseForm.reset();
     licenseForm.elements.plan.value = "standard";
     licenseForm.elements.maxActivations.value = "1";
-    showToast("Licenca criada.");
+    showToast("Licenca criada.", "success");
     await loadLicenses();
   } catch (error) {
-    showToast(error.message);
+    showToast(error.message, "error");
   }
 });
 
@@ -369,9 +450,9 @@ licenseList?.addEventListener("click", async (event) => {
     if (action === "delete" && await showSiteConfirm("Excluir licença", "Deseja excluir esta licença? Esta ação não pode ser desfeita.", "Excluir", "error")) {
       await runAction("delete-license", { licenseId: id });
     }
-    showToast("Acao concluida.");
+    showToast("Acao concluida.", "success");
   } catch (error) {
-    showToast(error.message);
+    showToast(error.message, "error");
   }
 });
 
@@ -391,10 +472,10 @@ customerForm?.addEventListener("submit", async (event) => {
       body: JSON.stringify(payload)
     });
     customerForm.reset();
-    showToast("Cliente salvo.");
+    showToast("Cliente salvo.", "success");
     await loadCustomers();
   } catch (error) {
-    showToast(error.message);
+    showToast(error.message, "error");
   }
 });
 
@@ -443,7 +524,6 @@ document.querySelectorAll(".admin-nav[data-view]").forEach((button) => {
     if (licensesPanel) licensesPanel.hidden = view !== "licenses";
     if (customersPanel) customersPanel.hidden = view !== "customers";
     
-    // Scroll to top when switching views
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 });

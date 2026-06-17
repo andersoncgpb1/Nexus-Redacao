@@ -1811,3 +1811,88 @@ a {
     left: 12px;
   }
 }
+
+/* ============================================ */
+/* ===== LICENSE KEY WITH COPY BUTTON ===== */
+/* ============================================ */
+
+.license-key-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.license-key-full {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  overflow-wrap: anywhere;
+  border: 1px solid rgba(14, 117, 237, 0.2);
+  word-break: break-all;
+  flex: 1;
+  min-width: 200px;
+}
+
+.copy-key-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.copy-key-btn:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.copy-key-btn:active {
+  transform: scale(0.95);
+}
+
+.copy-key-btn i {
+  font-size: 14px;
+}
+
+/* Estado de copiado (gerenciado pelo JS) */
+.copy-key-btn.copied {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #86efac;
+}
+
+/* ===== TOAST COM CORES ===== */
+.toast.success {
+  background: #16a34a !important;
+}
+
+.toast.error {
+  background: #dc2626 !important;
+}
+
+.toast.warning {
+  background: #f59e0b !important;
+}
+
+.toast.info {
+  background: #0e75ed !important;
+}
